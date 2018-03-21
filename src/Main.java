@@ -27,11 +27,17 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.TextField;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.ListSelectionEvent;
 
 public class Main extends JFrame 
@@ -67,7 +73,7 @@ public class Main extends JFrame
 	JList listMaterialVinst;
 	JList listMaterialPris;
 	
-	 
+	
 	DefaultListModel<String> MaterialMaterial = new DefaultListModel<String>();
 	DefaultListModel<String> MaterialPrisMaterialUnit = new DefaultListModel<String>();
 	DefaultListModel<String> MatirialAmount = new DefaultListModel<String>();
@@ -95,10 +101,13 @@ public class Main extends JFrame
 	JList listCollectedPrepareTime;		
 	JList listCollectedMachineTime;
 	
+	DefaultListModel<String> CollectedMaterialCost = new DefaultListModel<String>();
+	
+	
 	JComboBox comboBoxMachine;
 	JComboBox comboBoxNummber;
 	
-	int listselecter = 1;
+	
 	
 	private static JTextField textFieldDatum;
 	private JTextField textProduce;
@@ -122,7 +131,8 @@ public class Main extends JFrame
 	private JTextField textTotalTime;
 	private JTextField textFieldUnitAmaunt;
 	
-	
+	List<Integer> NR = new ArrayList<Integer>();
+	List<String> Maskin = new ArrayList<String>();
 	
 	
 	public static void main(String[] args) 
@@ -154,7 +164,8 @@ public class Main extends JFrame
 	private void initialize() 
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		setBounds(50, 50, 1500, 900);// ändra när innan färdigg //TODO
+		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 		
 		contentPane = new JPanel();
@@ -395,6 +406,8 @@ public class Main extends JFrame
 				setDate();
 				setStartProcentWalue();
 				setStarWalue();
+				AddName();
+				
 			}
 		});
 		btnImport.setBounds(995, 38, 89, 23);
@@ -770,18 +783,66 @@ public class Main extends JFrame
 	
 	private void comboboxes() 
 	{
-		comboBoxMachine = new JComboBox();
+		Maskin.add("Fräs");
+		Maskin.add("Sverv");
+		Maskin.add("Slip");
+		
+		comboBoxMachine = new JComboBox(Maskin.toArray());
+		comboBoxMachine.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				RetriveTestNr();
+				
+			}
+		});
 		comboBoxMachine.setBounds(204, 82, 120, 20);
 		comboBoxMachine.setSelectedItem(null);
 		comboBoxMachine.setEditable(true);
 		contentPane.add(comboBoxMachine);
 		
-		comboBoxNummber = new JComboBox();
+		NR.add(0);
+		NR.add(1);
+		NR.add(2);
+		
+		comboBoxNummber = new JComboBox(NR.toArray());
+		comboBoxNummber.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				RetriveTestNr();
+				
+			}
+		});
 		comboBoxNummber.setBounds(60, 82, 55, 20);
 		comboBoxNummber.setSelectedItem(null);
 		comboBoxNummber.setEditable(true);
 		contentPane.add(comboBoxNummber);
 		
+	}
+	
+	public class ComboItem {
+
+	    private int value;
+	    private String label;
+
+	    public ComboItem(int value, String label) {
+	        this.value = value;
+	        this.label = label;
+	    }
+
+	    public int getValue() {
+	        return this.value;
+	    }
+
+	    public String getLabel() {
+	        return this.label;
+	    }
+
+	    @Override
+	    public String toString() {
+	        return label;
+	    }
 	}
 
 	private static void setDate() 
@@ -835,6 +896,9 @@ public class Main extends JFrame
 		listMaterialAffo.setModel(MaterialAffo);
 		listMaterialVinst.setModel(MaterialVinst);
 		listMaterialPris.setModel(MaterialPris);
+		
+		CollectedMaterialCost.addElement(startWalue);
+		listCollectedMaterialCost.setModel(CollectedMaterialCost);
 	}
 
 	
@@ -916,8 +980,16 @@ public class Main extends JFrame
 		
 	}
 	
+	private void RetriveTestNr()
+	{
+		
+		
+	}
 	
-	
+	private void AddName()
+	{
+		textCostemerName.setText("Testföretag");
+	}
 	
 	
 
