@@ -173,20 +173,34 @@ public class Main extends JFrame
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
+		JScrollPane scrollPaneMasikin = new JScrollPane();
+		scrollPaneMasikin.setBounds(10, 127, 784, 65);
+		contentPane.add(scrollPaneMasikin);
+		
 		panelMaskin = new JPanel();
-		panelMaskin.setBounds(10, 127, 784, 65);
-		contentPane.add(panelMaskin);
+		scrollPaneMasikin.setViewportView(panelMaskin);
 		panelMaskin.setLayout(new GridLayout(1, 0, 0, 0));
 		
+		JScrollPane scrollPaneMatrial = new JScrollPane();
+		scrollPaneMatrial.setBounds(10, 248, 784, 65);
+		contentPane.add(scrollPaneMatrial);
+		
 		panelMattrial = new JPanel();
-		panelMattrial.setBounds(10, 248, 784, 65);
-		contentPane.add(panelMattrial);
+		scrollPaneMatrial.setViewportView(panelMattrial);
+		scrollPaneMatrial.setVisible(true);
 		panelMattrial.setLayout(new GridLayout(1, 0, 0, 0));
 		
+		JScrollPane scrollPaneKostnader = new JScrollPane();
+		scrollPaneKostnader.setBounds(10, 374, 784, 65);
+		contentPane.add(scrollPaneKostnader);
+		
 		panelKostnader = new JPanel();
-		panelKostnader.setBounds(10, 374, 784, 65);
-		contentPane.add(panelKostnader);
+		scrollPaneKostnader.setViewportView(panelKostnader);
 		panelKostnader.setLayout(new GridLayout(1, 0, 0, 0));
+		scrollPaneMatrial.setVisible(true);
+		listYourThing = new JList();
+		panelKostnader.add(listYourThing);
+		
 		
 		panelMachineLists();
 		panelMatrialLists();
@@ -204,6 +218,7 @@ public class Main extends JFrame
 	
 	private void panelMachineLists() 
 	{
+	
 		listMchineNumber = new JList();
 		panelMaskin.add(listMchineNumber);
 		
@@ -225,6 +240,7 @@ public class Main extends JFrame
 
 	private void panelMatrialLists()
 	{
+		
 		listMaterialMaterial = new JList();
 		listMaterialMaterial.addListSelectionListener(new ListSelectionListener()
 		{
@@ -296,6 +312,8 @@ public class Main extends JFrame
 		});
 		panelMattrial.add(listMaterialMo);
 		
+		
+		
 		listMaterialAffo = new JList();
 		listMaterialAffo.addListSelectionListener(new ListSelectionListener()
 		{
@@ -346,30 +364,30 @@ public class Main extends JFrame
 			}
 		});
 		panelMattrial.add(listMaterialPris);
+		
+		
 	}
 	
 	private void panelKostnader()
 	{
-		listYourThing = new JList();
-		panelKostnader.add(listYourThing);
+
+		JList listYourPrepareTime_1 = new JList();
+		panelKostnader.add(listYourPrepareTime_1);
 		
-		JList listYourPrepareTime = new JList();
-		panelKostnader.add(listYourPrepareTime);
+		JList listYourUnit_1 = new JList();
+		panelKostnader.add(listYourUnit_1);
 		
-		JList listYourUnit = new JList();
-		panelKostnader.add(listYourUnit);
+		JList listYourLo_1 = new JList();
+		panelKostnader.add(listYourLo_1);
 		
-		JList listYourLo = new JList();
-		panelKostnader.add(listYourLo);
+		JList listYourAffo_1 = new JList();
+		panelKostnader.add(listYourAffo_1);
 		
-		JList listYourAffo = new JList();
-		panelKostnader.add(listYourAffo);
+		JList listYourProfit_1 = new JList();
+		panelKostnader.add(listYourProfit_1);
 		
-		JList listYourProfit = new JList();
-		panelKostnader.add(listYourProfit);
-		
-		JList listYourPris = new JList();
-		panelKostnader.add(listYourPris);
+		JList listYourPris_1 = new JList();
+		panelKostnader.add(listYourPris_1);
 	}
 
 	private void otherLists() 
@@ -452,11 +470,11 @@ public class Main extends JFrame
 		contentPane.add(btnAddToYourCost);
 		
 		JButton btnDeliteMaterial = new JButton("Ta Bort");
-		btnAddMaterel.addMouseListener(new MouseAdapter() 
+		btnDeliteMaterial.addMouseListener(new MouseAdapter() 
 		{
 			public void mouseClicked(MouseEvent e)
 			{
-				DeliteMaterial();
+				DeliteMaterial(listMaterialMaterial);
 			}
 		});
 		btnDeliteMaterial.setBounds(165, 199, 89, 23);
@@ -975,8 +993,40 @@ public class Main extends JFrame
     	listMaterialVinst.setSelectedIndex(listMaterialPris.getSelectedIndex());	  	
 	}
 	
-	private void DeliteMaterial()
+	private void DeliteMaterial(JList list)
 	{
+		   int index = list.getSelectedIndex();
+		   DeleteMaterialWithIndex(index);
+
+		    int size = MaterialMaterial.getSize();
+
+		    if (size == 0) { //Nobody's left, disable firing.
+		    	//btnDeliteMaterial.setEnabled(false);
+
+		    } 
+		    else 
+		    { //Select an index.
+		        if (index == MaterialMaterial.getSize()) 
+		        {
+		            //removed item in last position
+		            index--;
+		        }
+
+		        listMaterialMaterial.setSelectedIndex(index);
+		        listMaterialMaterial.ensureIndexIsVisible(index);
+		    }
+	
+	}
+	
+	private void DeleteMaterialWithIndex(int index)
+	{
+		MaterialMaterial.remove(index);
+		MaterialPrisMaterialUnit.remove(index);
+		MatirialAmount.remove(index);
+		MaterialMo.remove(index);
+		MaterialAffo.remove(index);
+		MaterialVinst.remove(index);
+		MaterialPris.remove(index);
 		
 	}
 	
