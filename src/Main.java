@@ -29,6 +29,7 @@ import java.awt.Insets;
 import java.awt.TextField;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EventListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +43,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.awt.event.InputMethodListener;
+import java.awt.event.InputMethodEvent;
 
 public class Main extends JFrame 
 {
@@ -49,24 +54,20 @@ public class Main extends JFrame
 	private JPanel contentPane;
 	private JFrame frame;
 
-
+	// Start värden
 	static String startWalue = "0";
 	static String startAmount = "1";
 	static String startMo = "10";
 	static String startLo = "25";
 	static String startAffo = "20";
 	static String startVinst = "25";
-
-	JPanel panelMaskin;
-	JPanel panelMattrial;
-	JPanel panelKostnader;
-
-	JList listMchineNumber;
-	JList listMachineMachine;
-	JList listMachinePrice;
-	JList listMachinePrepareTime;
-	JList listMachineTime;
-	JList listMachinePris;
+	
+	//Nya värden
+	static String overAmount;
+	static String overMo;
+	static String overLo;
+	static String overAffo;
+	static String overVinst;
 	JList listYourPrepareTime;
 	JList listYourUnit;
 	JList listYourLo;
@@ -74,37 +75,42 @@ public class Main extends JFrame
 	JList listYourProfit;
 	JList listYourPris;
 
-
-
-	JList listCollectedMachineCost;
-	JList listCollectedPrepareTime;		
-	JList listCollectedMachineTime;
-
 	DefaultListModel<String> CollectedMaterialCost = new DefaultListModel<String>();
 
-
-	JComboBox comboBoxMachine;
-	JComboBox comboBoxNummber;
-
+	
+	static Object rowDataMachine[][] = {};
+	static String columnNamesMachin[] = { "Nummer", "Maskin", "Pris pre timme", "Antal" ,"Stäl tid", "Oprations tid", "Pris" };
+	static DefaultTableModel dtmMachine = new DefaultTableModel(rowDataMachine, columnNamesMachin);
 	//Matrial Tabel
 	static Object rowDataMatrial[][] = {};
 	static String columnNamesMatrial[] = { "Matrial", "Pris/Enhet", "Mängd", "MO", "Affo", "Vinst", "Pris" };
 	static DefaultTableModel dtmMarieial = new DefaultTableModel(rowDataMatrial, columnNamesMatrial);
 	//Your Tabel
 	static Object rowDataYour[][] = {};
-	static String columnNamesYour[] = { "Era Kostnader", "Stälkostnad", "St Pris", "LO", "Affo", "Vinst", "Pris" };
+	static String columnNamesYour[] = { "Era Kostnader", "Stälkostnad", "St Pris", "St","LO", "Affo", "Vinst", "Pris" };
 	static DefaultTableModel dtmYour = new DefaultTableModel(rowDataYour, columnNamesYour);
 	
 	
-	
+	//Machin Tabel cost
+	static Object rowDataMachineCost[][] = {};
+	static String columnNamesMachineCost[] = { "Maskin Kostnader" };
+	static DefaultTableModel dtmMachineCost = new DefaultTableModel(rowDataMachineCost, columnNamesMachineCost);
 	//Matral Tabel cost
 	static Object rowDataMatrialCost[][] = {};
-	static String columnNamesMatrialCost[] = { "Pris" };
+	static String columnNamesMatrialCost[] = { "Matrial kostnader" };
 	static DefaultTableModel dtmMarieialCost = new DefaultTableModel(rowDataMatrialCost, columnNamesMatrialCost);
 	// Your Tabel cost
 	static Object rowDataYourCost[][] = {};
-	static String columnNamesYourCost[] = { "Pris" };
+	static String columnNamesYourCost[] = { "Era kostnader" };
 	static DefaultTableModel dtmYourCost = new DefaultTableModel(rowDataYourCost, columnNamesYourCost);
+	// Preptime Tabel 
+	static Object rowDataPrepTime[][] = {};
+	static String columnNamesPrepTime[] = { "Förberedelse tid" };
+	static DefaultTableModel dtmPrepTime = new DefaultTableModel(rowDataPrepTime, columnNamesPrepTime);
+	// OprerationTime Tabel 
+	static Object rowDataOperationTime[][] = {};
+	static String columnNamesOprerationTime[] = { "Operation tid" };
+	static DefaultTableModel dtmOperationTime = new DefaultTableModel(rowDataOperationTime, columnNamesOprerationTime);
 	
 	
 	int maskinprisenhet;
@@ -120,8 +126,6 @@ public class Main extends JFrame
 	private JTextField textImport;
 	private static JTextField textDate;
 	private JTextField textTotalAmount;
-	private JTextField textOverTime;
-	private JTextField textOverProcent;
 	private JTextField textCostemerName;
 	private JTextField textTotalMaterialCost;
 	private JTextField textTotalMachineCost;
@@ -134,10 +138,14 @@ public class Main extends JFrame
 
 	List<Integer> NR = new ArrayList<Integer>();
 	List<String> Maskin = new ArrayList<String>();
-	private static JTable Matrialtable;
 	private static JTable tableCollectedMateralCost;
-	private static JTable Yourtable;
 	private JTable tableCollectedYourCost;
+	private static JTable Yourtable;
+	private static JTable Matrialtable;
+	private static JTable Machinetable;
+	private JTable tableCollectedMachineCost;
+	private JTable tableCollectedPrepTime;
+	private JTable tableCollectedOperationTime;
 
 
 	public static void main(String[] args) 
@@ -173,78 +181,80 @@ public class Main extends JFrame
 		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 
+		maintables();
+		panelMaterial();
+		panelMachineLists();
+		panelKostnader();
+		otherTabels();
+		buttons();
+		textfelds();
+		label();
+		lisnerMachine();
+		lisnerMarial();
+		lisnerYour();
+		setStarWalue();
+		setStartProcentWalue();
+		setDate();
+		AddEx();
+
+	}
+
+	
+
+	private void maintables() 
+	{
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
 		JScrollPane scrollPaneMasikin = new JScrollPane();
-		scrollPaneMasikin.setBounds(10, 127, 784, 65);
+		scrollPaneMasikin.setBounds(10, 127, 980, 65);
 		contentPane.add(scrollPaneMasikin);
-
-		panelMaskin = new JPanel();
-		scrollPaneMasikin.setViewportView(panelMaskin);
-		panelMaskin.setLayout(new GridLayout(1, 0, 0, 0));
+		
+		Machinetable = new JTable();
+		scrollPaneMasikin.setViewportView(Machinetable);
 
 		JScrollPane scrollPaneMatrial = new JScrollPane();
-		scrollPaneMatrial.setBounds(10, 248, 784, 65);
+		scrollPaneMatrial.setBounds(10, 248, 980, 65);
 		contentPane.add(scrollPaneMatrial);
-
-		panelMattrial = new JPanel();
-		scrollPaneMatrial.setViewportView(panelMattrial);
-		scrollPaneMatrial.setVisible(true);
-		panelMattrial.setLayout(new GridLayout(1, 0, 0, 0));
-
+		
 		Matrialtable = new JTable();
-		panelMattrial.add(Matrialtable);
-
+		scrollPaneMatrial.setViewportView(Matrialtable);
+		scrollPaneMatrial.setVisible(true);
 
 		JScrollPane scrollPaneKostnader = new JScrollPane();
-		scrollPaneKostnader.setBounds(10, 374, 784, 65);
+		scrollPaneKostnader.setBounds(10, 374, 980, 65);
 		contentPane.add(scrollPaneKostnader);
-
-		panelKostnader = new JPanel();
-		scrollPaneKostnader.setViewportView(panelKostnader);
-		panelKostnader.setLayout(new GridLayout(1, 0, 0, 0));
 		
 		Yourtable = new JTable();
-		panelKostnader.add(Yourtable);
-
-		panelMaterial();
-		panelMachineLists();
-		panelKostnader();
-		otherLists();
-		buttons();
-		textfelds();
-		label();
-		comboboxes();
-		lisnerMarial();
-		lisnerYour();
-
+		scrollPaneKostnader.setViewportView(Yourtable);
+		scrollPaneKostnader.setVisible(true);
 	}
 
 	private void panelMachineLists() 
 	{
+		Machinetable.setModel(dtmMachine);
+		dtmMachine.addTableModelListener(new TableModelListener()
+		{
+			public void tableChanged(TableModelEvent e) 
+			{
 
-		listMchineNumber = new JList();
-		panelMaskin.add(listMchineNumber);
+				int row = e.getLastRow();
+				int col = e.getColumn();
 
-		listMachineMachine = new JList();
-		panelMaskin.add(listMachineMachine);
-
-		listMachinePrice = new JList();
-		panelMaskin.add(listMachinePrice);
-
-		listMachinePrepareTime = new JList();
-		panelMaskin.add(listMachinePrepareTime);
-
-		listMachineTime = new JList();
-		panelMaskin.add(listMachineTime);
-
-		listMachinePris = new JList();
-		panelMaskin.add(listMachinePris);
+				if (col >= 0)
+				{
+					Object newData = Machinetable.getValueAt(row, col);
+					NewTabelPoste(col, newData);
+					SumCost(tableCollectedMachineCost,textTotalMachineCost);
+					SumCost(tableCollectedPrepTime,textTotalPrepareTime);
+					SumCost(tableCollectedOperationTime,textTotalMachineTime);
+				}
+			}
+		});
 	}
-
+	
 
 	private void panelMaterial()
 	{
@@ -260,8 +270,8 @@ public class Main extends JFrame
 				if (col >= 0)
 				{
 					Object newData = Matrialtable.getValueAt(row, col);
-					NewMaterialnr(col, newData);
-					SumMarerialCost();
+					NewTabelPoste(col, newData);
+					SumCost(tableCollectedMateralCost,textTotalMaterialCost);
 				}
 			}
 		});
@@ -269,6 +279,7 @@ public class Main extends JFrame
 
 	private void panelKostnader()
 	{
+
 		Yourtable.setModel(dtmYour);
 		dtmYour.addTableModelListener(new TableModelListener() 
 		{
@@ -280,44 +291,60 @@ public class Main extends JFrame
 				if (col >= 0)
 				{
 					Object newData = Yourtable.getValueAt(row, col);
-					NewYournr(col, newData);
-					SumYourCost();
+					NewTabelPoste(col, newData);
+					SumCost(tableCollectedYourCost,textYourTotalCost);
 				}
 			}
 		});
 	}
 
-	private void otherLists() 
+	private void otherTabels() 
 	{
-		listCollectedMachineCost = new JList();
-		listCollectedMachineCost.setBounds(55, 493, 86, 122);
-		contentPane.add(listCollectedMachineCost);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(186, 493, 86, 122);
-		contentPane.add(scrollPane);
+		JScrollPane scrollPaneMachineCost = new JScrollPane();
+		scrollPaneMachineCost.setBounds(55, 493, 100, 122);
+		contentPane.add(scrollPaneMachineCost);
+		
+		tableCollectedMachineCost = new JTable();
+		tableCollectedMachineCost.setDefaultEditor(Object.class, null);
+		scrollPaneMachineCost.setViewportView(tableCollectedMachineCost);
+		tableCollectedMachineCost.setModel(dtmMachineCost);
+		
+		JScrollPane scrollPaneMatreialCost = new JScrollPane();
+		scrollPaneMatreialCost.setBounds(201, 493, 106, 122);
+		contentPane.add(scrollPaneMatreialCost);
 		
 		tableCollectedMateralCost = new JTable();
 		tableCollectedMateralCost.setDefaultEditor(Object.class, null);
-		scrollPane.setViewportView(tableCollectedMateralCost);
+		scrollPaneMatreialCost.setViewportView(tableCollectedMateralCost);
 		tableCollectedMateralCost.setModel(dtmMarieialCost);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(317, 493, 86, 122);
-		contentPane.add(scrollPane_1);
+		JScrollPane scrollPaneYourCost = new JScrollPane();
+		scrollPaneYourCost.setBounds(347, 493, 100, 122);
+		contentPane.add(scrollPaneYourCost);
 		
 		tableCollectedYourCost = new JTable();
 		tableCollectedYourCost.setDefaultEditor(Object.class, null);
-		scrollPane_1.setViewportView(tableCollectedYourCost);
+		scrollPaneYourCost.setViewportView(tableCollectedYourCost);
 		tableCollectedYourCost.setModel(dtmYourCost);
-
-		listCollectedPrepareTime = new JList();
-		listCollectedPrepareTime.setBounds(448, 493, 40, 122);
-		contentPane.add(listCollectedPrepareTime);
-
-		listCollectedMachineTime = new JList();
-		listCollectedMachineTime.setBounds(533, 493, 40, 122);
-		contentPane.add(listCollectedMachineTime);
+		
+		JScrollPane scrollPaneMachinePrepTime = new JScrollPane();
+		scrollPaneMachinePrepTime.setBounds(493, 493, 100, 122);
+		contentPane.add(scrollPaneMachinePrepTime);
+		
+		tableCollectedPrepTime = new JTable();
+		tableCollectedPrepTime.setDefaultEditor(Object.class, null);
+		scrollPaneMachinePrepTime.setViewportView(tableCollectedPrepTime);
+		tableCollectedPrepTime.setModel(dtmPrepTime);
+		
+		JScrollPane scrollPaneCollectedOperationTime = new JScrollPane();
+		scrollPaneCollectedOperationTime.setBounds(639, 493, 91, 122);
+		contentPane.add(scrollPaneCollectedOperationTime);
+		
+		tableCollectedOperationTime = new JTable();
+		tableCollectedOperationTime.setDefaultEditor(Object.class, null);
+		scrollPaneCollectedOperationTime.setViewportView(tableCollectedOperationTime);
+		tableCollectedOperationTime.setModel(dtmOperationTime);
 	}
 
 	private void buttons() 
@@ -328,10 +355,7 @@ public class Main extends JFrame
 			@Override
 			public void mouseClicked(MouseEvent e) 
 			{
-				setDate();
-				setStartProcentWalue();
-				setStarWalue();
-				AddName();
+				System.out.println("Import");
 
 			}
 		});
@@ -347,13 +371,46 @@ public class Main extends JFrame
 		contentPane.add(btnSave);
 
 		JButton btnAddMachine = new JButton("L\u00E4ggtill");
-		btnAddMachine.setBounds(335, 81, 89, 23);
+		btnAddMachine.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent arg0) {
+				NewOverValue();
+				Object[] newRowMachineData = {"Nr","Maskin",startWalue,startAmount,startWalue,startWalue,startWalue};
+				//TODO
+				
+				Object[] newRowMachineCostData = {startWalue};
+				
+				dtmMachine.addRow(newRowMachineData);
+				dtmMachineCost.addRow(newRowMachineCostData);
+				dtmPrepTime.addRow(newRowMachineCostData);
+				dtmOperationTime.addRow(newRowMachineCostData);
+			}
+		});
+		btnAddMachine.setBounds(66, 81, 89, 23);
 		contentPane.add(btnAddMachine);
+		
+		JButton btnDeliteMachin = new JButton("Ta Bort");
+		btnDeliteMachin.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				int[] rows = Machinetable.getSelectedRows();
+
+				for(int i=0;i<rows.length;i++)
+				{
+					dtmMachine.removeRow(rows[i]-i);
+					dtmMachineCost.removeRow(rows[i]-i);
+					//tid
+					//tid
+				}
+			}
+		});
+		btnDeliteMachin.setBounds(165, 81, 89, 23);
+		contentPane.add(btnDeliteMachin);
 
 		JButton btnAddMaterel = new JButton("L\u00E4ggtill");
 		btnAddMaterel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Object[] newRowMaterialData = {"Matrial",startWalue,startAmount,startWalue,startWalue,startWalue,startWalue};
+				NewOverValue();
+				Object[] newRowMaterialData = {"Matrial",startWalue,overAmount,overMo,overAffo,overVinst,startWalue};
 				Object[] newRowMaterialCostData = {startWalue};
 				dtmMarieial.addRow(newRowMaterialData);
 				dtmMarieialCost.addRow(newRowMaterialCostData);
@@ -363,17 +420,14 @@ public class Main extends JFrame
 		contentPane.add(btnAddMaterel);
 
 		JButton btnAddShippingCost = new JButton("L\u00E4ggtill");
-		btnAddShippingCost.setBounds(668, 517, 89, 23);
+		btnAddShippingCost.setBounds(789, 550, 89, 23);
 		contentPane.add(btnAddShippingCost);
-
-		JButton btnAddOverTime = new JButton("L\u00E4ggtill");
-		btnAddOverTime.setBounds(775, 517, 89, 23);
-		contentPane.add(btnAddOverTime);
 
 		JButton btnAddToYourCost = new JButton("L\u00E4ggtill");
 		btnAddToYourCost.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Object[] newRowYourData = { "Vad", startWalue, startWalue, startLo, startAffo,startVinst,startWalue};
+				NewOverValue();
+				Object[] newRowYourData = { "Vad", startWalue, startWalue, overAmount ,overLo, overAffo,overVinst,startWalue};
 				Object[] newRowYourCostData = {startWalue};
 				dtmYour.addRow(newRowYourData);
 				dtmYourCost.addRow(newRowYourCostData);
@@ -386,14 +440,9 @@ public class Main extends JFrame
 		btnDeliteMaterial.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{
+				DeliteTabelPoste(Matrialtable, dtmMarieial, dtmMarieialCost);
 				//DefaultTableModel model = (DefaultTableModel) this.Matrialtable.getModel();
-				int[] rows = Matrialtable.getSelectedRows();
-
-				for(int i=0;i<rows.length;i++)
-				{
-					dtmMarieial.removeRow(rows[i]-i);
-					dtmMarieialCost.removeRow(rows[i]-i);
-				}
+				
 			}
 		});
 		btnDeliteMaterial.setBounds(165, 199, 89, 23);
@@ -404,13 +453,7 @@ public class Main extends JFrame
 			public void actionPerformed(ActionEvent e) 
 			{
 				//DefaultTableModel model = (DefaultTableModel) this.Matrialtable.getModel();
-				int[] rows = Yourtable.getSelectedRows();
-
-				for(int i=0;i<rows.length;i++)
-				{
-					dtmYour.removeRow(rows[i]-i);
-					dtmYourCost.removeRow(rows[i]-i);
-				}
+				DeliteTabelPoste(Yourtable, dtmYour, dtmYourCost);
 			}
 		});
 		btnDeliteYourCost.setBounds(203, 320, 89, 23);
@@ -419,29 +462,6 @@ public class Main extends JFrame
 
 	private void label() 
 	{
-		JLabel lblYourLo = new JLabel("LO");
-		lblYourLo.setBounds(348, 354, 46, 14);
-		contentPane.add(lblYourLo);
-
-		JLabel lblAffo_1 = new JLabel("Affo");
-		lblAffo_1.setBounds(460, 354, 46, 14);
-		contentPane.add(lblAffo_1);
-
-		JLabel lblYourProfit = new JLabel("Vinst");
-		lblYourProfit.setBounds(572, 354, 46, 14);
-		contentPane.add(lblYourProfit);
-
-		JLabel lblYourPris = new JLabel("Pris stycket");
-		lblYourPris.setBounds(680, 354, 68, 14);
-		contentPane.add(lblYourPris);
-
-		JLabel lblStPris = new JLabel("St pris ");
-		lblStPris.setBounds(234, 354, 46, 14);
-		contentPane.add(lblStPris);
-
-		JLabel lblInkptTjnst = new JLabel("Ink\u00F6pt tj\u00E4nst");
-		lblInkptTjnst.setBounds(10, 354, 80, 14);
-		contentPane.add(lblInkptTjnst);
 
 		JLabel lblUnitAmaunt = new JLabel("Syck summan ex moms");
 		lblUnitAmaunt.setBounds(1020, 451, 150, 14);
@@ -451,132 +471,21 @@ public class Main extends JFrame
 		lblNewYourCost.setBounds(10, 324, 80, 14);
 		contentPane.add(lblNewYourCost);
 
-		JLabel lblYourPrepareCost = new JLabel("St\u00E4lkostnad");
-		lblYourPrepareCost.setBounds(124, 354, 70, 14);
-		contentPane.add(lblYourPrepareCost);
-
-		JLabel lblMaterialMaterial = new JLabel("Matrial");
-		lblMaterialMaterial.setBounds(10, 228, 46, 14);
-		contentPane.add(lblMaterialMaterial);
-
-		JLabel lblPrisMatrigalenhet = new JLabel("Pris / matrigalenhet");
-		lblPrisMatrigalenhet.setBounds(99, 228, 120, 14);
-		contentPane.add(lblPrisMatrigalenhet);
-
-		JLabel lblMaterialAmuont = new JLabel("M\u00E4ngd");
-		lblMaterialAmuont.setBounds(234, 228, 46, 14);
-		contentPane.add(lblMaterialAmuont);
-
-		JLabel lblMaterialMo = new JLabel("MO");
-		lblMaterialMo.setBounds(348, 228, 46, 14);
-		contentPane.add(lblMaterialMo);
-
-		JLabel lblMaterialVinst = new JLabel("Vinst");
-		lblMaterialVinst.setBounds(572, 228, 46, 14);
-		contentPane.add(lblMaterialVinst);
-
-		JLabel lblMaterialAffo = new JLabel("Affo");
-		lblMaterialAffo.setBounds(460, 228, 46, 14);
-		contentPane.add(lblMaterialAffo);
-
-		JLabel lblMaterialPrisUnit = new JLabel("Pris stycket");
-		lblMaterialPrisUnit.setBounds(680, 228, 68, 14);
-		contentPane.add(lblMaterialPrisUnit);
-
-		JLabel lblMachineNumber = new JLabel("Nummer");
-		lblMachineNumber.setBounds(10, 110, 50, 14);
-		contentPane.add(lblMachineNumber);
-
-		JLabel lblMachineMachine = new JLabel("Maskin");
-		lblMachineMachine.setBounds(141, 110, 46, 14);
-		contentPane.add(lblMachineMachine);
-
-		JLabel lblMachinePris = new JLabel("Pris");
-		lblMachinePris.setBounds(272, 113, 46, 14);
-		contentPane.add(lblMachinePris);
-
-		JLabel lblMachinePrepareTime = new JLabel("St\u00E4l tid");
-		lblMachinePrepareTime.setBounds(403, 110, 46, 14);
-		contentPane.add(lblMachinePrepareTime);
-
-		JLabel lblMachineTime1 = new JLabel("Tid");
-		lblMachineTime1.setBounds(532, 110, 46, 14);
-		contentPane.add(lblMachineTime1);
-
-		JLabel lblMachinPris = new JLabel("Pris Opration Stycket");
-		lblMachinPris.setBounds(668, 110, 130, 14);
-		contentPane.add(lblMachinPris);
-
 		JLabel lblMachineMaterial = new JLabel("Matrial");
 		lblMachineMaterial.setBounds(10, 203, 46, 14);
 		contentPane.add(lblMachineMaterial);
 
-		JLabel lblCollectedMachineTime = new JLabel("Maskin tid");
-		lblCollectedMachineTime.setBounds(532, 476, 60, 14);
-		contentPane.add(lblCollectedMachineTime);
-
 		JLabel lblTotalTid = new JLabel("Totala tid");
-		lblTotalTid.setBounds(572, 629, 56, 14);
+		lblTotalTid.setBounds(792, 599, 56, 14);
 		contentPane.add(lblTotalTid);
 
 		JLabel lblShipping = new JLabel("Frakt kostnad");
-		lblShipping.setBounds(668, 476, 80, 14);
+		lblShipping.setBounds(789, 500, 80, 14);
 		contentPane.add(lblShipping);
 
-		JLabel lblShippingAmuount = new JLabel("Summa");
-		lblShippingAmuount.setBounds(623, 494, 46, 14);
-		contentPane.add(lblShippingAmuount);
-
-		JLabel lblNumber = new JLabel("Nummer");
-		lblNumber.setBounds(10, 85, 50, 14);
-		contentPane.add(lblNumber);
-
-		JLabel lblSelectMaskin = new JLabel("V\u00E4llj Maskin");
-		lblSelectMaskin.setBounds(124, 85, 70, 14);
-		contentPane.add(lblSelectMaskin);
-
-		JLabel lblTotalPrepareTime = new JLabel("Summa");
-		lblTotalPrepareTime.setBounds(403, 629, 46, 14);
-		contentPane.add(lblTotalPrepareTime);
-
-		JLabel lblCollectedPrepareTime = new JLabel("Maskin st\u00E4ll tid");
-		lblCollectedPrepareTime.setBounds(425, 476, 86, 14);
-		contentPane.add(lblCollectedPrepareTime);
-
-		JLabel lblTotalMachineTime = new JLabel("Summa");
-		lblTotalMachineTime.setBounds(488, 629, 46, 14);
-		contentPane.add(lblTotalMachineTime);
-
-		JLabel lblCollectedMachineCost = new JLabel("Maskin kostnad");
-		lblCollectedMachineCost.setBounds(55, 476, 100, 14);
-		contentPane.add(lblCollectedMachineCost);
-
-		JLabel lblYourTotoalCost = new JLabel("Summa");
-		lblYourTotoalCost.setBounds(272, 629, 46, 14);
-		contentPane.add(lblYourTotoalCost);
-
-		JLabel lblYourCollectedCost = new JLabel("Era Kostnader");
-		lblYourCollectedCost.setBounds(317, 476, 86, 14);
-		contentPane.add(lblYourCollectedCost);
-		JLabel lblTid = new JLabel("Tid");
-		lblTid.setBounds(757, 494, 20, 14);
-		contentPane.add(lblTid);
-
-		JLabel labelProcent = new JLabel("%");
-		labelProcent.setBounds(866, 494, 20, 14);
-		contentPane.add(labelProcent);
-
-		JLabel lblCollectedMatrialCoste = new JLabel("Matrial kostnad");
-		lblCollectedMatrialCoste.setBounds(186, 476, 90, 14);
-		contentPane.add(lblCollectedMatrialCoste);
-
-		JLabel lblSumma = new JLabel("Summa");
-		lblSumma.setBounds(141, 629, 46, 14);
-		contentPane.add(lblSumma);
-
-		JLabel lblTotalMachineCost = new JLabel("Summa");
-		lblTotalMachineCost.setBounds(10, 629, 46, 14);
-		contentPane.add(lblTotalMachineCost);
+		JLabel lblMachine = new JLabel("Maskin");
+		lblMachine.setBounds(10, 85, 50, 14);
+		contentPane.add(lblMachine);
 
 		JLabel lblMo = new JLabel("MO");
 		lblMo.setBounds(436, 42, 30, 14);
@@ -589,10 +498,6 @@ public class Main extends JFrame
 		JLabel lblTotalAmount = new JLabel("Totala summan ex moms");
 		lblTotalAmount.setBounds(1020, 479, 150, 14);
 		contentPane.add(lblTotalAmount);
-
-		JLabel lblOverTime = new JLabel("\u00D6vertids till\u00E4gg");
-		lblOverTime.setBounds(774, 476, 100, 14);
-		contentPane.add(lblOverTime);
 
 		JLabel lblLo = new JLabel("LO");
 		lblLo.setBounds(542, 42, 30, 14);
@@ -621,6 +526,8 @@ public class Main extends JFrame
 		JLabel lblVinst = new JLabel("Vinst");
 		lblVinst.setBounds(732, 42, 30, 14);
 		contentPane.add(lblVinst);
+		
+	
 	}
 
 	private void textfelds() 
@@ -675,48 +582,38 @@ public class Main extends JFrame
 		contentPane.add(textTotalAmount);
 		textTotalAmount.setColumns(10);
 
-		textOverTime = new JTextField();
-		textOverTime.setBounds(774, 491, 46, 20);
-		contentPane.add(textOverTime);
-		textOverTime.setColumns(10);
-
-		textOverProcent = new JTextField();
-		textOverProcent.setBounds(820, 491, 46, 20);
-		contentPane.add(textOverProcent);
-		textOverProcent.setColumns(10);
-
 		textCostemerName = new JTextField();
 		textCostemerName.setBounds(99, 8, 120, 20);
 		contentPane.add(textCostemerName);
 		textCostemerName.setColumns(10);
 
 		textTotalMaterialCost = new JTextField();
-		textTotalMaterialCost.setBounds(186, 626, 86, 20);
+		textTotalMaterialCost.setBounds(201, 626, 106, 20);
 		contentPane.add(textTotalMaterialCost);
 		textTotalMaterialCost.setColumns(10);
 
 		textTotalMachineCost = new JTextField();
-		textTotalMachineCost.setBounds(55, 626, 86, 20);
+		textTotalMachineCost.setBounds(55, 626, 100, 20);
 		contentPane.add(textTotalMachineCost);
 		textTotalMachineCost.setColumns(10);
 
 		textYourTotalCost = new JTextField();
-		textYourTotalCost.setBounds(317, 626, 86, 20);
+		textYourTotalCost.setBounds(347, 626, 100, 20);
 		contentPane.add(textYourTotalCost);
 		textYourTotalCost.setColumns(10);
 
 		textTotalPrepareTime = new JTextField();
-		textTotalPrepareTime.setBounds(448, 626, 40, 20);
+		textTotalPrepareTime.setBounds(493, 626, 100, 20);
 		contentPane.add(textTotalPrepareTime);
 		textTotalPrepareTime.setColumns(10);
 
 		textTotalMachineTime = new JTextField();
-		textTotalMachineTime.setBounds(532, 626, 40, 20);
+		textTotalMachineTime.setBounds(639, 626, 91, 20);
 		contentPane.add(textTotalMachineTime);
 		textTotalMachineTime.setColumns(10);
 
 		textShippingCost = new JTextField();
-		textShippingCost.setBounds(668, 491, 86, 20);
+		textShippingCost.setBounds(789, 519, 86, 20);
 		contentPane.add(textShippingCost);
 		textShippingCost.setColumns(10);
 
@@ -726,74 +623,13 @@ public class Main extends JFrame
 		contentPane.add(textFieldUnitAmaunt);
 
 		textTotalTime = new JTextField();
-		textTotalTime.setBounds(623, 628, 86, 20);
+		textTotalTime.setBounds(792, 626, 86, 20);
 		contentPane.add(textTotalTime);
 		textTotalTime.setColumns(10);
 	}
 
-	private void comboboxes() 
-	{
-		Maskin.add("Fräs");
-		Maskin.add("Sverv");
-		Maskin.add("Slip");
 
-		comboBoxMachine = new JComboBox(Maskin.toArray());
-		comboBoxMachine.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				RetriveTestNr();
-
-			}
-		});
-		comboBoxMachine.setBounds(204, 82, 120, 20);
-		comboBoxMachine.setSelectedItem(null);
-		comboBoxMachine.setEditable(true);
-		contentPane.add(comboBoxMachine);
-
-		NR.add(0);
-		NR.add(1);
-		NR.add(2);
-
-		comboBoxNummber = new JComboBox(NR.toArray());
-		comboBoxNummber.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				RetriveTestNr();
-
-			}
-		});
-		comboBoxNummber.setBounds(60, 82, 55, 20);
-		comboBoxNummber.setSelectedItem(null);
-		comboBoxNummber.setEditable(true);
-		contentPane.add(comboBoxNummber);
-
-	}
-
-	public class ComboItem {
-
-		private int value;
-		private String label;
-
-		public ComboItem(int value, String label) {
-			this.value = value;
-			this.label = label;
-		}
-
-		public int getValue() {
-			return this.value;
-		}
-
-		public String getLabel() {
-			return this.label;
-		}
-
-		@Override
-		public String toString() {
-			return label;
-		}
-	}
+	
 
 	private static void setDate() 
 	{
@@ -822,25 +658,10 @@ public class Main extends JFrame
 		textTotalMachineTime.setText(startWalue);
 		textTotalTime.setText(startWalue);
 		textShippingCost.setText(startWalue);
-		textOverTime.setText(startWalue);
-		textOverProcent.setText(startWalue);
 		textTotalAmount.setText(startWalue);
 		textFieldUnitAmaunt.setText(startWalue);
 	}
 
-	private void AddMaterial( int listIte)
-	{
-
-	}
-
-	private void printtest(String i)
-	{
-
-		System.out.println(i);
-	}
-
-
-	
 	public static boolean isDouble( Object input ) {
 		try {
 			Double.parseDouble( (String) input );
@@ -851,70 +672,35 @@ public class Main extends JFrame
 		}
 	}
 
+	private void lisnerMachine()
+	{
+		dtmMachine.addTableModelListener(new TableModelListener() 
+		{
+			public void tableChanged(TableModelEvent e)
+			{
+				TabelListnerValues(Machinetable,e);	
+			}
+		});
+	}
+	
 	private void lisnerMarial() 
 	{
 		dtmMarieial.addTableModelListener(new TableModelListener() 
 		{
-
 			public void tableChanged(TableModelEvent e)
 			{
-
-				int row = e.getLastRow();
-				int col = e.getColumn();
-				int cunt = Matrialtable.getColumnCount();
-
-				System.out.println(row);
-				System.out.println(col);
-
-				if (col >= 0)
-				{
-					Object newData = Matrialtable.getValueAt(row, col);
-					System.out.println("New: " + newData.toString());
-					if (col >= 1 && col <= 5)
-					{
-						if(isDouble(newData) == true)
-						{				
-							Materialmathematics(row, cunt);
-						}
-						else 
-						{
-							System.out.println("FEl");
-						}	
-					}	
-				}			
+				TabelListnerValues(Matrialtable,e);	
 			}
 		});
 	}
-	private void lisnerYour() {
+	
+	private void lisnerYour() 
+	{
 		dtmYour.addTableModelListener(new TableModelListener() 
 		{
-
 			public void tableChanged(TableModelEvent e)
 			{
-
-				int row = e.getLastRow();
-				int col = e.getColumn();
-				int cunt = Yourtable.getColumnCount();
-
-				System.out.println(row);
-				System.out.println(col);
-
-				if (col >= 0)
-				{
-					Object newData = Yourtable.getValueAt(row, col);
-					System.out.println("New: " + newData.toString());
-					if (col >= 1 && col <= 5)
-					{
-						if(isDouble(newData) == true)
-						{				
-							Yourmathematics(row, cunt);
-						}
-						else 
-						{
-							System.out.println("FEl");
-						}	
-					}	
-				}			
+				TabelListnerValues(Yourtable,e);			
 			}
 		});
 	}
@@ -937,16 +723,20 @@ public class Main extends JFrame
 		affo = Double.parseDouble(Matrialtable.getValueAt(row, i+3)+"");
 		vinst = Double.parseDouble(Matrialtable.getValueAt(row, i+4)+"");
 
+		mo = changetoprocent(mo);
+		affo = changetoprocent(affo);
+		vinst = changetoprocent(vinst);
 
-		total = pris+st+mo+affo+vinst;
+		total = (pris*st)*mo*affo*vinst;
 		dtmMarieial.setValueAt(total, row, awnser);
 		dtmMarieialCost.setValueAt(total, row, 0);
 	}
 
-	private  static void Yourmathematics(int row, int cunt) {
-		int awnser = 6;
+	private static void Yourmathematics(int row, int cunt) {
+		int awnser = 7;
 		double stelkostnad = 0;
-		double st = 0;
+		int antal = 0;
+		double stpris = 0;
 		double lo = 0;
 		double affo = 0;
 		double vinst = 0;
@@ -955,18 +745,63 @@ public class Main extends JFrame
 		//TODO
 		int i =1;
 		stelkostnad = Double.parseDouble(Yourtable.getValueAt(row, i)+"");
-		st = Double.parseDouble(Yourtable.getValueAt(row, i+1)+"");
-		lo = Double.parseDouble(Yourtable.getValueAt(row, i+2)+"");
-		affo = Double.parseDouble(Yourtable.getValueAt(row, i+3)+"");
-		vinst = Double.parseDouble(Yourtable.getValueAt(row, i+4)+"");
+		stpris = Double.parseDouble(Yourtable.getValueAt(row, i+1)+"");
+		antal = Integer.parseInt(Yourtable.getValueAt(row, i+2)+"");
+		lo = Double.parseDouble(Yourtable.getValueAt(row, i+3)+"");
+		affo = Double.parseDouble(Yourtable.getValueAt(row, i+4)+"");
+		vinst = Double.parseDouble(Yourtable.getValueAt(row, i+5)+"");
+		
+		lo = changetoprocent(lo);
+		affo = changetoprocent(affo);
+		vinst = changetoprocent(vinst);
 
-
-		total = stelkostnad+st+lo+affo+vinst;
+		total = ((stelkostnad)+(stpris*antal))*lo*affo*vinst;
 		dtmYour.setValueAt(total, row, awnser);
 		dtmYourCost.setValueAt(total, row, 0);
 	}
 
-	private void NewMaterialnr(int i, Object newData)
+	private static void Machinemathematics(int row, int cunt) 
+	{
+		int awnser = 6;
+		double prispertimme = 0;
+		int antal = 0;
+		double steltid = 0;
+		double oprationstid = 0;
+		double total = 0;
+
+		//TODO
+		int i =2;
+		prispertimme = Double.parseDouble(Machinetable.getValueAt(row, i)+"");
+		antal = Integer.parseInt(Machinetable.getValueAt(row, i+1)+"");
+		steltid = Double.parseDouble(Machinetable.getValueAt(row, i+2)+"");
+		oprationstid = Double.parseDouble(Machinetable.getValueAt(row, i+3)+"");
+		
+		System.out.println(prispertimme);
+		System.out.println(antal);
+		//steltid = changetime(steltid);
+		
+		total = (prispertimme*steltid)+(oprationstid*prispertimme)*antal;
+		dtmMachine.setValueAt(total, row, awnser);
+		dtmMachineCost.setValueAt(total, row, 0);
+		dtmPrepTime.setValueAt(steltid, row, 0);
+		dtmOperationTime.setValueAt(oprationstid, row, 0);
+		
+	}
+	
+
+	private static double changetime(double x) {
+		// TODO Auto-generated method stub
+		
+		return 0;
+	}
+
+	private static double changetoprocent(double x) {
+		x = x/100;
+		return x = x+1;
+		
+	}
+
+	private void NewTabelPoste(int i, Object newData)
 	{
 		String string;
 		if( i == 1)
@@ -975,53 +810,96 @@ public class Main extends JFrame
 		}
 	}
 	
-	private void NewYournr(int i, Object newData)
+	private void DeliteTabelPoste(JTable x, DefaultTableModel y ,DefaultTableModel z)
 	{
-		String string;
-		if( i == 1)
+		int[] rows = x.getSelectedRows();
+
+		for(int i=0;i<rows.length;i++)
 		{
-			string = (String) newData;
+			y.removeRow(rows[i]-i);
+			z.removeRow(rows[i]-i);
 		}
 	}
 	
-	private void SumMarerialCost() 
+	
+	private void SumCost(JTable x, JTextField y) 
 	{
-		// TODO Auto-generated method stub
-		int cunt = tableCollectedMateralCost.getRowCount();
+		int cunt = x.getRowCount();
 		
 		double sum = 0 ;
 		for(int i = 0; i < cunt ; i++)
 		{
-			sum = sum + Double.parseDouble(tableCollectedMateralCost.getValueAt(0, 0).toString());
+			sum = sum + Double.parseDouble(x.getValueAt(0, 0).toString());
 			System.out.println(sum);
-			textTotalMaterialCost.setText(Double.toString(sum));
+			y.setText(Double.toString(sum));
 		}
 		
 	}
 	
-	private void SumYourCost() 
+	
+	
+	private void NewOverValue() 
+{
+		overMo = textMo.getText();
+		overLo = textLo.getText();
+		overAffo = textAffo.getText();
+		overVinst = textVinst.getText();
+		overAmount = textAmount.getText();
+	}
+
+	private void AddEx()
 	{
-		// TODO Auto-generated method stub
-		int cunt = tableCollectedYourCost.getRowCount();
-		
-		double sum = 0 ;
-		for(int i = 0; i < cunt ; i++)
+		textCostemerName.setText("Exempel företag");
+		textProduce.setText("Exempel sak");
+	}
+	
+	private void TabelListnerValues(JTable x, TableModelEvent e)
+	{
+		int row = e.getLastRow();
+		int col = e.getColumn();
+		int cunt = x.getColumnCount();
+
+		System.out.println(row);
+		System.out.println(col);
+
+		if (col >= 0)
 		{
-			sum = sum + Double.parseDouble(tableCollectedYourCost.getValueAt(0, 0).toString());
-			System.out.println(sum);
-			textYourTotalCost.setText(Double.toString(sum));
-		}
-		
+			Object newData = x.getValueAt(row, col);
+			System.out.println("New: " + newData.toString());
+			if (col >= 0 && col <= 8)
+			{
+				if(isDouble(newData) == true)
+				{	
+					if(x == Matrialtable)
+					{
+						Materialmathematics(row, cunt);
+					}
+					else if(x == Yourtable)
+					{
+						Yourmathematics(row, cunt);
+					}
+					else if(x == Machinetable)
+					{
+						Machinemathematics(row, cunt);
+						
+					}
+				}
+					
+			}	
+		}	
 	}
+ private void priseUppdate()
+ {
+	 double totalacost = 0;
+	 double machinecost = Double.parseDouble(textTotalMachineCost.getText());
+	 double materialcost = Double.parseDouble(textTotalMaterialCost.getText());
+	 double Yourcost = Double.parseDouble(textYourTotalCost.getText());
+	 double shipment = Double.parseDouble(textShippingCost.getText());
+	 
+	 totalacost =machinecost+machinecost+Yourcost+shipment;
+	 
+ }
 	
-	private void RetriveTestNr()
-	{
-
-
-	}
-
-	private void AddName()
-	{
-		textCostemerName.setText("Testföretag");
-	}
 }
+
+
