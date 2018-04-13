@@ -58,9 +58,9 @@ public class Main extends JFrame
 	static String startWalue = "0";
 	static String startAmount = "1";
 	static String startMo = "10";
-	static String startLo = "25";
-	static String startAffo = "20";
-	static String startVinst = "25";
+	static String startLo = "10";
+	static String startAffo = "10";
+	static String startVinst = "5";
 	
 	//Nya värden
 	static String overAmount;
@@ -392,16 +392,11 @@ public class Main extends JFrame
 		btnDeliteMachin.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				int[] rows = Machinetable.getSelectedRows();
-
-				for(int i=0;i<rows.length;i++)
-				{
-					dtmMachine.removeRow(rows[i]-i);
-					dtmMachineCost.removeRow(rows[i]-i);
-					//tid
-					//tid
-				}
+				DeliteCostAndTime();
+				Sumtime();
 			}
+
+			
 		});
 		btnDeliteMachin.setBounds(165, 81, 89, 23);
 		contentPane.add(btnDeliteMachin);
@@ -420,6 +415,12 @@ public class Main extends JFrame
 		contentPane.add(btnAddMaterel);
 
 		JButton btnAddShippingCost = new JButton("L\u00E4ggtill");
+		btnAddShippingCost.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				priseUppdate();
+			}
+		});
 		btnAddShippingCost.setBounds(789, 550, 89, 23);
 		contentPane.add(btnAddShippingCost);
 
@@ -441,9 +442,12 @@ public class Main extends JFrame
 			public void actionPerformed(ActionEvent e) 
 			{
 				DeliteTabelPoste(Matrialtable, dtmMarieial, dtmMarieialCost);
+				priseUppdate();
 				//DefaultTableModel model = (DefaultTableModel) this.Matrialtable.getModel();
 				
 			}
+
+			
 		});
 		btnDeliteMaterial.setBounds(165, 199, 89, 23);
 		contentPane.add(btnDeliteMaterial);
@@ -453,13 +457,53 @@ public class Main extends JFrame
 			public void actionPerformed(ActionEvent e) 
 			{
 				//DefaultTableModel model = (DefaultTableModel) this.Matrialtable.getModel();
+				
 				DeliteTabelPoste(Yourtable, dtmYour, dtmYourCost);
+				priseUppdate();
 			}
 		});
 		btnDeliteYourCost.setBounds(203, 320, 89, 23);
 		contentPane.add(btnDeliteYourCost);
 	}
 
+	private void DeliteCostAndTime() 
+	{
+		// TODO Auto-generated method stub
+		int[] rows = Machinetable.getSelectedRows();
+
+		for(int i=0;i<rows.length;i++)
+		{
+			double m = Double.parseDouble(dtmMachineCost.getValueAt(rows[i], 0)+"");
+			double p = Double.parseDouble(dtmPrepTime.getValueAt(rows[i], 0)+"");
+			double o = Double.parseDouble(dtmOperationTime.getValueAt(rows[i], 0)+"");
+			dtmMachine.removeRow(rows[i]-i);
+			dtmMachineCost.removeRow(rows[i]-i);
+			dtmPrepTime.removeRow(rows[i]-i);
+			dtmOperationTime.removeRow(rows[i]-i);
+			DeliteCostFromSum(m,textTotalMachineCost);
+			DeliteCostFromSum(p,textTotalPrepareTime);
+			DeliteCostFromSum(o,textTotalMachineTime);
+			DeliteSimtime(p,o,textTotalTime);
+			Sumtime();
+			
+		}
+	}
+	
+	private void DeliteSimtime(double p, double o, JTextField x) {
+		// TODO Auto-generated method stub
+		double q = Double.parseDouble(x.getText());
+		double tot = q-(p+o);
+		x.setText(Double.toString(tot));
+	}
+
+	private void DeliteCostFromSum(double sum, JTextField x) 
+	{
+		// TODO Auto-generated method stub
+		double o = Double.parseDouble(x.getText());
+		double tot = o-sum;
+		
+		x.setText(Double.toString(tot));
+	}
 	private void label() 
 	{
 
@@ -628,9 +672,6 @@ public class Main extends JFrame
 		textTotalTime.setColumns(10);
 	}
 
-
-	
-
 	private static void setDate() 
 	{
 		Date dNow = new Date();
@@ -678,7 +719,8 @@ public class Main extends JFrame
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				TabelListnerValues(Machinetable,e);	
+				TabelListnerValues(Machinetable,e);
+				priseUppdate();
 			}
 		});
 	}
@@ -689,7 +731,8 @@ public class Main extends JFrame
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				TabelListnerValues(Matrialtable,e);	
+				TabelListnerValues(Matrialtable,e);
+				priseUppdate();
 			}
 		});
 	}
@@ -700,7 +743,8 @@ public class Main extends JFrame
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				TabelListnerValues(Yourtable,e);			
+				TabelListnerValues(Yourtable,e);
+				priseUppdate();
 			}
 		});
 	}
@@ -780,7 +824,7 @@ public class Main extends JFrame
 		System.out.println(antal);
 		//steltid = changetime(steltid);
 		
-		total = (prispertimme*steltid)+(oprationstid*prispertimme)*antal;
+		total = ((prispertimme*steltid)+(oprationstid*prispertimme))*antal;
 		dtmMachine.setValueAt(total, row, awnser);
 		dtmMachineCost.setValueAt(total, row, 0);
 		dtmPrepTime.setValueAt(steltid, row, 0);
@@ -813,12 +857,16 @@ public class Main extends JFrame
 	private void DeliteTabelPoste(JTable x, DefaultTableModel y ,DefaultTableModel z)
 	{
 		int[] rows = x.getSelectedRows();
-
 		for(int i=0;i<rows.length;i++)
 		{
+			
+			double r = Double.parseDouble(z.getValueAt(rows[i], 0)+"");
 			y.removeRow(rows[i]-i);
 			z.removeRow(rows[i]-i);
+			DeliteCostFromSum(r,textTotalMaterialCost);
+			
 		}
+		
 	}
 	
 	
@@ -829,7 +877,7 @@ public class Main extends JFrame
 		double sum = 0 ;
 		for(int i = 0; i < cunt ; i++)
 		{
-			sum = sum + Double.parseDouble(x.getValueAt(0, 0).toString());
+			sum = sum + Double.parseDouble(x.getValueAt(i, 0).toString());
 			System.out.println(sum);
 			y.setText(Double.toString(sum));
 		}
@@ -866,7 +914,7 @@ public class Main extends JFrame
 		{
 			Object newData = x.getValueAt(row, col);
 			System.out.println("New: " + newData.toString());
-			if (col >= 0 && col <= 8)
+			if (col >= 0 && col <=cunt)
 			{
 				if(isDouble(newData) == true)
 				{	
@@ -881,24 +929,36 @@ public class Main extends JFrame
 					else if(x == Machinetable)
 					{
 						Machinemathematics(row, cunt);
-						
 					}
 				}
 					
 			}	
-		}	
+		}
 	}
- private void priseUppdate()
- {
-	 double totalacost = 0;
-	 double machinecost = Double.parseDouble(textTotalMachineCost.getText());
-	 double materialcost = Double.parseDouble(textTotalMaterialCost.getText());
-	 double Yourcost = Double.parseDouble(textYourTotalCost.getText());
-	 double shipment = Double.parseDouble(textShippingCost.getText());
-	 
-	 totalacost =machinecost+machinecost+Yourcost+shipment;
-	 
- }
+	
+	private void priseUppdate()
+	{
+		double totalacost = 0;
+		double machinecost = Double.parseDouble(textTotalMachineCost.getText());
+		double materialcost = Double.parseDouble(textTotalMaterialCost.getText());
+		double Yourcost = Double.parseDouble(textYourTotalCost.getText());
+		double shipment = Double.parseDouble(textShippingCost.getText());
+		
+		totalacost =machinecost+materialcost+Yourcost+shipment;
+		textTotalAmount.setText(Double.toString(totalacost));
+	}
+	
+	private void Sumtime()
+	{
+		double totalacost = 0;
+		double preptime = Double.parseDouble(textTotalPrepareTime.getText());
+		double operationtime = Double.parseDouble(textTotalMachineTime.getText());
+		
+		totalacost = preptime + operationtime;
+		System.out.println(totalacost);
+		textTotalTime.setText(Double.toString(totalacost));
+	}
+	
 	
 }
 
