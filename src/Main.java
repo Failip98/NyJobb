@@ -39,6 +39,12 @@ public class Main extends JFrame
 	private JPanel contentPane;
 	private JFrame frame;
 
+	
+	JComboBox nr;
+	JComboBox Serice;
+	  
+	
+	
 	// Start värden
 	static String startWalue = "0";
 	static String startAmount = "1";
@@ -93,6 +99,17 @@ public class Main extends JFrame
 	static Object rowDataOperationTime[][] = {};
 	static String columnNamesOprerationTime[] = { "Operation tid" };
 	static DefaultTableModel dtmOperationTime = new DefaultTableModel(rowDataOperationTime, columnNamesOprerationTime);
+	
+	//OneServiseCost Tabel
+	static Object rowDataOneServiceCost[][] = {};
+	static String columnNamesOneServiceCost[] = { "En Service" };
+	static DefaultTableModel dtmOneServiceCost = new DefaultTableModel(rowDataOneServiceCost, columnNamesOneServiceCost);
+		
+	// One YourCost Tabel 
+	static Object rowDataOneYourCost[][] = {};
+	static String columnNamesOneYourCost[] = { "En Era" };
+	static DefaultTableModel dtmOneYourCost = new DefaultTableModel(rowDataOneYourCost, columnNamesOneYourCost);
+	
 	//Textfelt
 	private static JTextField textFieldDatum;
 	private JTextField textProduce;
@@ -112,7 +129,7 @@ public class Main extends JFrame
 	private JTextField textTotalServiceTime;
 	private JTextField textShippingCost;
 	private JTextField textTotalTime;
-	private JTextField textFieldUnitAmaunt;
+	private JTextField textUnitAmaunt;
 
 	//JTables
 	private static JTable tableCollectedMateralCost;
@@ -123,6 +140,10 @@ public class Main extends JFrame
 	private JTable tableCollectedServiceCost;
 	private JTable tableCollectedPrepTime;
 	private JTable tableCollectedOperationTime;
+	private JTable tableOneServiceCost;
+	private JTable tableOneYourCost;
+	private JTextField textOneServiceCost;
+	private JTextField textOneYourCost;
 
 	public static void main(String[] args) 
 	{
@@ -168,7 +189,9 @@ public class Main extends JFrame
 		lisnerYour();
 		lisnerServiceRounder();
 		lisnerMarialRounder();
-		lisnerMarialRounder();
+		lisnerYourRounder();
+		LisnerPreptime();
+		LisnerOperationtime();
 		setStarWalue();
 		setStartProcentWalue();
 		setDate();
@@ -211,9 +234,9 @@ public class Main extends JFrame
 	private void panelServiceLists() //Skappar Service tabelen
 	{
 		servicetabel.setModel(dtmService);
-
+		Commboboxnr(servicetabel);
+		CommboboxService(servicetabel);
 		servicetabel.getColumnModel().getColumn(6).setCellRenderer(new DecimalFormatRenderer() );
-		
 		dtmService.addTableModelListener(new TableModelListener()
 		{
 			public void tableChanged(TableModelEvent e) 
@@ -224,8 +247,8 @@ public class Main extends JFrame
 				{
 					Object newData = servicetabel.getValueAt(row, col);
 					NewTabelPoste(col, newData);
-					comboboxService(servicetabel);
-					Sumtime();
+					
+					
 				}
 			}
 
@@ -233,22 +256,22 @@ public class Main extends JFrame
 		});
 	}
 	
-	private void comboboxService(JTable table) {
-		// TODO Auto-generated method stub
-		JComboBox comboBox = new JComboBox();
-        comboBox.addItem("Snowboarding");
-        comboBox.addItem("Rowing");
-        comboBox.addItem("Knitting");
-        comboBox.addItem("Speed reading");
-        comboBox.addItem("Pool");
-        comboBox.addItem("None of the above");
-        table.setCellEditor(new DefaultCellEditor(comboBox));
-        
-        
-        
+	private void Commboboxnr(JTable tabel) 
+	{
+		String[] Servicenr = {"111","222","333"};
+		JComboBox nr = new JComboBox(Servicenr);
 		
+		tabel.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(nr));
 	}
-	
+	private void CommboboxService(JTable tabel) 
+	{
+		
+		String[] ServiceThing = {"Sverv","Fräs","Karuselsverv"};
+		JComboBox Service = new JComboBox(ServiceThing);
+		
+		tabel.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(Service));
+	}
+
 	private void panelMaterial() //Skappar Matrial tabelen
 	{
 		Matrialtable.setModel(dtmMarieial);
@@ -303,7 +326,7 @@ public class Main extends JFrame
 		tableCollectedServiceCost.setModel(dtmServiceCost);
 		
 		JScrollPane scrollPaneMatreialCost = new JScrollPane();
-		scrollPaneMatreialCost.setBounds(201, 493, 106, 122);
+		scrollPaneMatreialCost.setBounds(299, 493, 106, 122);
 		contentPane.add(scrollPaneMatreialCost);
 		
 		tableCollectedMateralCost = new JTable();
@@ -314,7 +337,7 @@ public class Main extends JFrame
 		tableCollectedMateralCost.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
 		
 		JScrollPane scrollPaneYourCost = new JScrollPane();
-		scrollPaneYourCost.setBounds(347, 493, 100, 122);
+		scrollPaneYourCost.setBounds(554, 493, 100, 122);
 		contentPane.add(scrollPaneYourCost);
 		
 		tableCollectedYourCost = new JTable();
@@ -325,7 +348,7 @@ public class Main extends JFrame
 		tableCollectedYourCost.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
 		
 		JScrollPane scrollPaneServicePrepTime = new JScrollPane();
-		scrollPaneServicePrepTime.setBounds(493, 493, 100, 122);
+		scrollPaneServicePrepTime.setBounds(685, 493, 100, 122);
 		contentPane.add(scrollPaneServicePrepTime);
 		
 		tableCollectedPrepTime = new JTable();
@@ -336,13 +359,41 @@ public class Main extends JFrame
 		tableCollectedPrepTime.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
 		
 		JScrollPane scrollPaneCollectedOperationTime = new JScrollPane();
-		scrollPaneCollectedOperationTime.setBounds(639, 493, 91, 122);
+		scrollPaneCollectedOperationTime.setBounds(827, 493, 91, 122);
 		contentPane.add(scrollPaneCollectedOperationTime);
 		
 		tableCollectedOperationTime = new JTable();
 		tableCollectedOperationTime.setDefaultEditor(Object.class, null);
 		scrollPaneCollectedOperationTime.setViewportView(tableCollectedOperationTime);
+		
 		tableCollectedOperationTime.setModel(dtmOperationTime);
+		tableCollectedOperationTime.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
+		
+		
+		
+		JScrollPane scrollPaneOneServiceCost = new JScrollPane();
+		scrollPaneOneServiceCost.setBounds(175, 493, 100, 122);
+		contentPane.add(scrollPaneOneServiceCost);
+		
+		tableOneServiceCost = new JTable();
+		tableOneServiceCost.setDefaultEditor(Object.class, null);
+		scrollPaneOneServiceCost.setViewportView(tableOneServiceCost);
+		
+		
+		tableOneServiceCost.setModel(dtmOneServiceCost);
+		tableOneServiceCost.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
+		
+		JScrollPane scrollPaneOneYuorCost = new JScrollPane();
+		scrollPaneOneYuorCost.setBounds(425, 493, 100, 122);
+		contentPane.add(scrollPaneOneYuorCost);
+		
+		tableOneYourCost = new JTable();
+		tableOneYourCost.setDefaultEditor(Object.class, null);
+		scrollPaneOneYuorCost.setViewportView(tableOneYourCost);
+		
+		tableOneYourCost.setModel(dtmOneYourCost);
+		tableOneYourCost.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
+		
 	}
 
 	private void buttons() //Skapar alla knappar
@@ -410,7 +461,7 @@ public class Main extends JFrame
 				priseUppdate();
 			}
 		});
-		btnAddShippingCost.setBounds(789, 550, 89, 23);
+		btnAddShippingCost.setBounds(943, 551, 89, 23);
 		contentPane.add(btnAddShippingCost);
 
 		JButton btnAddToYourCost = new JButton("L\u00E4ggtill");
@@ -500,6 +551,16 @@ public class Main extends JFrame
 	
 	private void label() 
 	{
+		
+		textOneServiceCost = new JTextField();
+		textOneServiceCost.setBounds(175, 626, 100, 20);
+		contentPane.add(textOneServiceCost);
+		textOneServiceCost.setColumns(10);
+		
+		textOneYourCost = new JTextField();
+		textOneYourCost.setBounds(425, 626, 100, 20);
+		contentPane.add(textOneYourCost);
+		textOneYourCost.setColumns(10);
 
 		JLabel lblUnitAmaunt = new JLabel("Syck summan ex moms");
 		lblUnitAmaunt.setBounds(1020, 451, 150, 14);
@@ -514,14 +575,14 @@ public class Main extends JFrame
 		contentPane.add(lblMaterial);
 
 		JLabel lblTotalTid = new JLabel("Totala tid");
-		lblTotalTid.setBounds(792, 599, 56, 14);
+		lblTotalTid.setBounds(944, 601, 56, 14);
 		contentPane.add(lblTotalTid);
 
 		JLabel lblShipping = new JLabel("Frakt kostnad");
-		lblShipping.setBounds(789, 500, 80, 14);
+		lblShipping.setBounds(943, 500, 80, 14);
 		contentPane.add(lblShipping);
 
-		JLabel lblService = new JLabel("???");
+		JLabel lblService = new JLabel("Service");
 		lblService.setBounds(10, 85, 50, 14);
 		contentPane.add(lblService);
 
@@ -564,6 +625,8 @@ public class Main extends JFrame
 		JLabel lblVinst = new JLabel("Vinst");
 		lblVinst.setBounds(732, 42, 30, 14);
 		contentPane.add(lblVinst);
+		
+		
 		
 	
 	}
@@ -626,7 +689,7 @@ public class Main extends JFrame
 		textCostemerName.setColumns(10);
 
 		textTotalMaterialCost = new JTextField();
-		textTotalMaterialCost.setBounds(201, 626, 106, 20);
+		textTotalMaterialCost.setBounds(299, 626, 106, 20);
 		contentPane.add(textTotalMaterialCost);
 		textTotalMaterialCost.setColumns(10);
 
@@ -636,32 +699,32 @@ public class Main extends JFrame
 		textTotalServiceCost.setColumns(10);
 
 		textYourTotalCost = new JTextField();
-		textYourTotalCost.setBounds(347, 626, 100, 20);
+		textYourTotalCost.setBounds(554, 626, 100, 20);
 		contentPane.add(textYourTotalCost);
 		textYourTotalCost.setColumns(10);
 
 		textTotalPrepareTime = new JTextField();
-		textTotalPrepareTime.setBounds(493, 626, 100, 20);
+		textTotalPrepareTime.setBounds(685, 626, 100, 20);
 		contentPane.add(textTotalPrepareTime);
 		textTotalPrepareTime.setColumns(10);
 
 		textTotalServiceTime = new JTextField();
-		textTotalServiceTime.setBounds(639, 626, 91, 20);
+		textTotalServiceTime.setBounds(827, 626, 91, 20);
 		contentPane.add(textTotalServiceTime);
 		textTotalServiceTime.setColumns(10);
 
 		textShippingCost = new JTextField();
-		textShippingCost.setBounds(789, 519, 86, 20);
+		textShippingCost.setBounds(943, 520, 86, 20);
 		contentPane.add(textShippingCost);
 		textShippingCost.setColumns(10);
 
-		textFieldUnitAmaunt = new JTextField();
-		textFieldUnitAmaunt.setColumns(10);
-		textFieldUnitAmaunt.setBounds(1174, 448, 86, 20);
-		contentPane.add(textFieldUnitAmaunt);
+		textUnitAmaunt = new JTextField();
+		textUnitAmaunt.setColumns(10);
+		textUnitAmaunt.setBounds(1174, 448, 86, 20);
+		contentPane.add(textUnitAmaunt);
 
 		textTotalTime = new JTextField();
-		textTotalTime.setBounds(792, 626, 86, 20);
+		textTotalTime.setBounds(943, 626, 86, 20);
 		contentPane.add(textTotalTime);
 		textTotalTime.setColumns(10);
 	}
@@ -694,7 +757,9 @@ public class Main extends JFrame
 		textTotalTime.setText(startWalue);
 		textShippingCost.setText(startWalue);
 		textTotalAmount.setText(startWalue);
-		textFieldUnitAmaunt.setText(startWalue);
+		textUnitAmaunt.setText(startWalue);
+		textOneServiceCost.setText(startWalue);
+		textOneYourCost.setText(startWalue);
 	}
 
 	public static boolean isDouble( Object input ) {
@@ -750,8 +815,6 @@ public class Main extends JFrame
 			{
 
 				SumCost(tableCollectedServiceCost,textTotalServiceCost);
-				SumCost(tableCollectedPrepTime,textTotalPrepareTime);
-				SumCost(tableCollectedOperationTime,textTotalServiceTime);
 				priseUppdate();
 			}
 		});
@@ -768,7 +831,8 @@ public class Main extends JFrame
 			}
 		});
 	}
-	
+
+	private void lisnerYourRounder() 
 	{
 		dtmYourCost.addTableModelListener(new TableModelListener() 
 		{
@@ -777,6 +841,33 @@ public class Main extends JFrame
 
 				SumCost(tableCollectedYourCost,textYourTotalCost);
 				priseUppdate();
+			}
+		});
+	}
+	
+	private void LisnerPreptime() 
+	{
+		dtmPrepTime.addTableModelListener(new TableModelListener() 
+		{
+			public void tableChanged(TableModelEvent e)
+			{
+
+				SumCost(tableCollectedPrepTime,textTotalPrepareTime);
+				Sumtime();
+				
+			}
+		});
+	}
+	
+	private void LisnerOperationtime() 
+	{
+		dtmOperationTime.addTableModelListener(new TableModelListener() 
+		{
+			public void tableChanged(TableModelEvent e)
+			{
+				
+				Sumtime();
+				
 			}
 		});
 	}
@@ -999,16 +1090,13 @@ public class Main extends JFrame
 		double ServiceCost = 0;
 		double materialcost = 0;
 		double Yourcost = 0;
-		//double ServiceCost = Double.parseDouble(textTotalServiceCost.getText());
-		//double materialcost = Double.parseDouble(textTotalMaterialCost.getText());
 		ServiceCost = symbolchanger(textTotalServiceCost);
 		materialcost = symbolchanger(textTotalMaterialCost);
 		Yourcost = symbolchanger(textYourTotalCost);
 		
-		//double Yourcost = Double.parseDouble(textYourTotalCost.getText());
 		double shipment = Double.parseDouble(textShippingCost.getText());
 		
-		totalacost =ServiceCost+materialcost+Yourcost+shipment;//ServiceCost+materialcost+Yourcost;
+		totalacost =ServiceCost+materialcost+Yourcost+shipment;
 		
 		String tc = String.format("%.2f", totalacost);
 		textTotalAmount.setText(tc);
@@ -1021,8 +1109,6 @@ public class Main extends JFrame
 		double operationtime = 0;
 		preptime = symbolchanger(textTotalPrepareTime);
 		operationtime = symbolchanger(textTotalServiceTime);
-		//double preptime = Double.parseDouble(textTotalPrepareTime.getText());
-		//double operationtime = Double.parseDouble(textTotalServiceTime.getText());
 		
 		totalacost = preptime + operationtime;
 		System.out.println(totalacost);
@@ -1032,12 +1118,13 @@ public class Main extends JFrame
 	
 	private void AddService() 
 	{
-		Object[] newRowServiceData = {"Nr","????",startWalue,startAmount,startWalue,startWalue,startWalue};
+		Object[] newRowServiceData = {"Nr","Service",startWalue,startAmount,startWalue,startWalue,startWalue};
 		Object[] newRowServiceCostData = {startWalue};
 		dtmService.addRow(newRowServiceData);
 		dtmServiceCost.addRow(newRowServiceCostData);
 		dtmPrepTime.addRow(newRowServiceCostData);
 		dtmOperationTime.addRow(newRowServiceCostData);
+		dtmOneServiceCost.addRow(newRowServiceCostData);
 	}
 	
 	private void AddMaterial() 
@@ -1054,6 +1141,7 @@ public class Main extends JFrame
 		Object[] newRowYourCostData = {startWalue};
 		dtmYour.addRow(newRowYourData);
 		dtmYourCost.addRow(newRowYourCostData);
+		dtmOneYourCost.addRow(newRowYourCostData);
 	}
 	
 	private  double symbolchanger(JTextField tf)
@@ -1067,15 +1155,13 @@ public class Main extends JFrame
 	}
 	
 	
-	static class DecimalFormatRenderer extends DefaultTableCellRenderer {
-	      
-	 
+	static class DecimalFormatRenderer extends DefaultTableCellRenderer 
+	{   
 	      public Component getTableCellRendererComponent(
 	         JTable table, Object value, boolean isSelected,
 	         boolean hasFocus, int row, int column) {
 	 
 	    	 Object number = null;
-	         // First format the cell value as required
 	    	  if (value instanceof Double)
 	    	  {
 	    		  number = formatter.format((Number)value);
@@ -1086,8 +1172,6 @@ public class Main extends JFrame
 	    		  number = formatter.format((Number)val);
 	    	  }
 	    	  
-	            // And pass it on to parent class
-	 
 	         return super.getTableCellRendererComponent(
 	            table, number, isSelected, hasFocus, row, column );
 	      }
