@@ -126,7 +126,7 @@ public class Main extends JFrame
 	private JTextField textTotalServiceCost;
 	private JTextField textYourTotalCost;
 	private JTextField textTotalPrepareTime;
-	private JTextField textTotalServiceTime;
+	private JTextField textTotalOperationTime;
 	private JTextField textShippingCost;
 	private JTextField textTotalTime;
 	private JTextField textUnitAmaunt;
@@ -192,10 +192,13 @@ public class Main extends JFrame
 		lisnerYourRounder();
 		LisnerPreptime();
 		LisnerOperationtime();
+		LisnerOneService();
+		LisnerOneYour();
 		setStarWalue();
 		setStartProcentWalue();
 		setDate();
 		AddEx();
+		
 	}
 
 
@@ -480,7 +483,7 @@ public class Main extends JFrame
 		btnDeliteMaterial.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{
-				DeliteTabelPoste(Matrialtable, dtmMarieial, dtmMarieialCost);
+				DeliteTabelPoste(Matrialtable, dtmMarieial, dtmMarieialCost,textTotalMaterialCost);
 				//DefaultTableModel model = (DefaultTableModel) this.Matrialtable.getModel();
 				
 			}
@@ -496,7 +499,7 @@ public class Main extends JFrame
 			{
 				//DefaultTableModel model = (DefaultTableModel) this.Matrialtable.getModel();
 				
-				DeliteTabelPoste(Yourtable, dtmYour, dtmYourCost);
+				DeliteTabelYourPoste(Yourtable, dtmYour, dtmYourCost,textYourTotalCost,textOneYourCost);
 				priseUppdate();
 			}
 		});
@@ -520,7 +523,7 @@ public class Main extends JFrame
 			dtmOperationTime.removeRow(rows[i]-i);
 			DeliteCostFromSum(m,textTotalServiceCost);
 			DeliteCostFromSum(p,textTotalPrepareTime);
-			DeliteCostFromSum(o,textTotalServiceTime);
+			DeliteCostFromSum(o,textTotalOperationTime);
 			DeliteSimtime(p,o,textTotalTime);
 			Sumtime();
 			
@@ -708,10 +711,10 @@ public class Main extends JFrame
 		contentPane.add(textTotalPrepareTime);
 		textTotalPrepareTime.setColumns(10);
 
-		textTotalServiceTime = new JTextField();
-		textTotalServiceTime.setBounds(827, 626, 91, 20);
-		contentPane.add(textTotalServiceTime);
-		textTotalServiceTime.setColumns(10);
+		textTotalOperationTime = new JTextField();
+		textTotalOperationTime.setBounds(827, 626, 91, 20);
+		contentPane.add(textTotalOperationTime);
+		textTotalOperationTime.setColumns(10);
 
 		textShippingCost = new JTextField();
 		textShippingCost.setBounds(943, 520, 86, 20);
@@ -753,7 +756,7 @@ public class Main extends JFrame
 		textTotalMaterialCost.setText(startWalue);
 		textYourTotalCost.setText(startWalue);
 		textTotalPrepareTime.setText(startWalue);
-		textTotalServiceTime.setText(startWalue);
+		textTotalOperationTime.setText(startWalue);
 		textTotalTime.setText(startWalue);
 		textShippingCost.setText(startWalue);
 		textTotalAmount.setText(startWalue);
@@ -865,9 +868,34 @@ public class Main extends JFrame
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				
+				SumCost(tableCollectedOperationTime,textTotalOperationTime);
 				Sumtime();
 				
+			}
+		});
+	}
+	
+	private void LisnerOneService() 
+	{
+		dtmOneServiceCost.addTableModelListener(new TableModelListener() 
+		{
+			public void tableChanged(TableModelEvent e)
+			{
+				
+				SumCost(tableOneServiceCost,textOneServiceCost);
+				priseUppdate();
+			}
+		});
+	}
+	private void LisnerOneYour() 
+	{
+		dtmOneYourCost.addTableModelListener(new TableModelListener() 
+		{
+			public void tableChanged(TableModelEvent e)
+			{
+				
+				SumCost(tableOneServiceCost,textOneServiceCost);
+				priseUppdate();
 			}
 		});
 	}
@@ -910,6 +938,8 @@ public class Main extends JFrame
 		double affo = 0;
 		double vinst = 0;
 		double total = 0;
+		double onecost = 0;
+		int one = 1;
 
 		//TODO
 		int i =1;
@@ -926,8 +956,10 @@ public class Main extends JFrame
 
 		
 		total = ((stelkostnad)+(stpris*antal))*lo*affo*vinst;
+		onecost =((stelkostnad)+(stpris*one))*lo*affo*vinst;
 		dtmYour.setValueAt(total, row, awnser);
 		dtmYourCost.setValueAt( total, row, 0);
+		dtmOneYourCost.setValueAt(onecost, row, 0);
 	}
 
 	private static void ServiceMathematics(int row, int cunt) 
@@ -938,6 +970,7 @@ public class Main extends JFrame
 		double steltid = 0;
 		double oprationstid = 0;
 		double total = 0;
+		double onecost = 0;
 
 		//TODO
 		int i =2;
@@ -950,11 +983,13 @@ public class Main extends JFrame
 		System.out.println(antal);
 		//steltid = changetime(steltid);
 		
-		total = ((prispertimme*steltid)+(oprationstid*prispertimme))*antal;
+		total = ((prispertimme*(steltid/antal))+((oprationstid*prispertimme)*antal));
+		onecost = ((prispertimme*steltid)+(oprationstid*prispertimme));
 		dtmService.setValueAt(total, row, awnser);
 		dtmServiceCost.setValueAt(total, row, 0);
 		dtmPrepTime.setValueAt(steltid, row, 0);
 		dtmOperationTime.setValueAt(oprationstid, row, 0);
+		dtmOneServiceCost.setValueAt(onecost, row, 0);
 		
 	}
 	
@@ -980,7 +1015,7 @@ public class Main extends JFrame
 		}
 	}
 	
-	private void DeliteTabelPoste(JTable x, DefaultTableModel y ,DefaultTableModel z)
+	private void DeliteTabelPoste(JTable x, DefaultTableModel y ,DefaultTableModel z, JTextField t)
 	{
 		int[] rows = x.getSelectedRows();
 		for(int i=0;i<rows.length;i++)
@@ -989,11 +1024,26 @@ public class Main extends JFrame
 			double r = Double.parseDouble(z.getValueAt(rows[i], 0)+"");
 			y.removeRow(rows[i]-i);
 			z.removeRow(rows[i]-i);
-			DeliteCostFromSum(r,textTotalMaterialCost);
+			DeliteCostFromSum(r,t);
 			
 		}
 		
 	}
+	private void DeliteTabelYourPoste(JTable x, DefaultTableModel y ,DefaultTableModel z, JTextField t,JTextField u)
+	{
+		int[] rows = x.getSelectedRows();
+		for(int i=0;i<rows.length;i++)
+		{
+			
+			double r = Double.parseDouble(z.getValueAt(rows[i], 0)+"");
+			y.removeRow(rows[i]-i);
+			z.removeRow(rows[i]-i);
+			DeliteCostFromSum(r,t);
+			DeliteCostFromSum(r,u);
+		}
+		
+	}
+	
 	
 	
 	private void SumCost(JTable x, JTextField y) 
@@ -1090,13 +1140,17 @@ public class Main extends JFrame
 		double ServiceCost = 0;
 		double materialcost = 0;
 		double Yourcost = 0;
+		double OneService = 0;
+		double OneYour = 0;
+		
 		ServiceCost = symbolchanger(textTotalServiceCost);
 		materialcost = symbolchanger(textTotalMaterialCost);
 		Yourcost = symbolchanger(textYourTotalCost);
-		
+		OneService = symbolchanger(textOneServiceCost);
+		OneYour = symbolchanger(textOneYourCost);
 		double shipment = Double.parseDouble(textShippingCost.getText());
 		
-		totalacost =ServiceCost+materialcost+Yourcost+shipment;
+		totalacost =ServiceCost+materialcost+Yourcost+shipment+OneService+OneYour;
 		
 		String tc = String.format("%.2f", totalacost);
 		textTotalAmount.setText(tc);
@@ -1108,7 +1162,7 @@ public class Main extends JFrame
 		double preptime = 0;
 		double operationtime = 0;
 		preptime = symbolchanger(textTotalPrepareTime);
-		operationtime = symbolchanger(textTotalServiceTime);
+		operationtime = symbolchanger(textTotalOperationTime);
 		
 		totalacost = preptime + operationtime;
 		System.out.println(totalacost);
