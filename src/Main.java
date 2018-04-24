@@ -42,7 +42,7 @@ public class Main extends JFrame
 	JComboBox nr;
 	JComboBox Serice;
 
-	// Start värden
+	// Start värden och standarvärden
 	static String startWalue = "0";
 	static String startAmount = "1";
 	static String startMo = "10";
@@ -187,10 +187,10 @@ public class Main extends JFrame
 		lisnerServiceRounder();
 		lisnerMarialRounder();
 		lisnerYourRounder();
-		LisnerPreptime();
-		LisnerOperationtime();
-		LisnerOneService();
-		LisnerOneYour();
+		lisnerPreptimeRunder();
+		lisnerOperationtimeRounder();
+		lisnerOneServiceRounder();
+		lisnerOneYourRounder();
 		setStarWalue();
 		setStartProcentWalue();
 		setDate();
@@ -250,16 +250,16 @@ public class Main extends JFrame
 		});
 	}
 
-	private void Commboboxnr(JTable tabel) 
+	private void Commboboxnr(JTable tabel)//Sakapar comboboxsarna i tabelen 
 	{
 		String[] Servicenr = {"111","222","333"};
 		JComboBox nr = new JComboBox(Servicenr);
 
 		tabel.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(nr));
 	}
-	private void CommboboxService(JTable tabel) 
+	
+	private void CommboboxService(JTable tabel)//Sakapar comboboxsarna i tabelen 
 	{
-
 		String[] ServiceThing = {"Sverv","Fräs","Karuselsverv"};
 		JComboBox Service = new JComboBox(ServiceThing);
 
@@ -289,7 +289,6 @@ public class Main extends JFrame
 
 	private void panelKostnader() // Skappar Kostnader tabelen
 	{
-
 		Yourtable.setModel(dtmYour);
 		Yourtable.getColumnModel().getColumn(7).setCellRenderer(new DecimalFormatRenderer() );
 		dtmYour.addTableModelListener(new TableModelListener() 
@@ -472,7 +471,7 @@ public class Main extends JFrame
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				DeliteTabelPoste(Matrialtable, dtmMarieial, dtmMarieialCost,textTotalMaterialCost);
+				DeliteTabelMaterialPoste(Matrialtable, dtmMarieial, dtmMarieialCost,textTotalMaterialCost);
 				MaterialReset();
 				priseUppdate();
 			}
@@ -493,7 +492,8 @@ public class Main extends JFrame
 		btnDeliteYourCost.setBounds(209, 493, 89, 23);
 		contentPane.add(btnDeliteYourCost);
 	}
-	private void ServiceReset()
+	
+	private void ServiceReset()//När alla tabeler är bortagna ur listan så stätter textfeltvärdena som hörtill till start värde
 	{
 		if(tableCollectedServiceCost.getRowCount() == 0)
 		{
@@ -504,7 +504,8 @@ public class Main extends JFrame
 			textTotalTime.setText(startWalue);
 		}
 	}
-	private void MaterialReset()
+	
+	private void MaterialReset()//När alla tabeler är bortagna ur listan så stätter textfeltvärdena som hörtill till start värde
 	{
 		if(tableCollectedMateralCost.getRowCount() == 0)
 		{
@@ -512,7 +513,7 @@ public class Main extends JFrame
 		}
 	}
 
-	private void YourReset()
+	private void YourReset()//När alla tabeler är bortagna ur listan så stätter textfeltvärdena som hörtill till start värde
 	{
 		if(tableCollectedYourCost.getRowCount() == 0)
 		{
@@ -521,21 +522,7 @@ public class Main extends JFrame
 		}
 	}
 
-	private void DeliteCostAndTime() 
-	{
-		int[] rows = servicetabel.getSelectedRows();
-		for(int i=0;i<rows.length;i++)
-		{
-			dtmService.removeRow(rows[i]-i);
-			dtmServiceCost.removeRow(rows[i]-i);
-			dtmPrepTime.removeRow(rows[i]-i);
-			dtmOperationTime.removeRow(rows[i]-i);
-			dtmOneServiceCost.removeRow(rows[i]-i);
-			Sumtime();
-		}
-	}
-	
-	private void label() 
+	private void label()//Skapar alla labels
 	{
 		JLabel lblUnitAmaunt = new JLabel("Styck summan ex moms");
 		lblUnitAmaunt.setBounds(1619, 811, 150, 14);
@@ -610,7 +597,7 @@ public class Main extends JFrame
 		contentPane.add(lblPricelist);
 	}
 
-	private void textfelds() 
+	private void textfelds() //Skapar alla textfelt
 	{
 		textFieldDatum = new JTextField();
 		textFieldDatum.setBounds(1787, 8, 86, 20);
@@ -723,7 +710,7 @@ public class Main extends JFrame
 		textAmuntDivided.setColumns(10);
 	}
 
-	private static void setDate() 
+	private static void setDate()//Sätter datumet i textrutan 
 	{
 		Date dNow = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat ("dd.MM.yyyy");
@@ -731,7 +718,7 @@ public class Main extends JFrame
 		textFieldDatum.setText(sdf.format(dNow));
 	}
 
-	private void setStartProcentWalue()
+	private void setStartProcentWalue()//Sätter Prosent startvärden
 	{
 		textMo.setText(startMo);
 		textLo.setText(startLo);
@@ -739,7 +726,7 @@ public class Main extends JFrame
 		textVinst.setText(startVinst);
 	}
 
-	private void setStarWalue()
+	private void setStarWalue()//Sätter de övriga startvärdena
 	{
 		textAmount.setText(startAmount);
 		textTotalServiceCost.setText(startWalue);
@@ -756,7 +743,7 @@ public class Main extends JFrame
 		textAmuntDivided.setText(startWalue);
 	}
 
-	public static boolean isDouble( Object input ) 
+	public static boolean isDouble( Object input ) //Ser om ett värde är en double
 	{
 		try 
 		{
@@ -769,7 +756,7 @@ public class Main extends JFrame
 		}
 	}
 
-	private void lisnerService()
+	private void lisnerService()//När Servictabelen samanlagd costnad updateras så uppdateras samanräkningaen av priset 
 	{
 		dtmService.addTableModelListener(new TableModelListener() 
 		{
@@ -781,7 +768,7 @@ public class Main extends JFrame
 		});
 	}
 
-	private void lisnerMarial() 
+	private void lisnerMarial()//När Matrialtabelen samanlagd costnad updateras så uppdateras samanräkningaen av priset 
 	{
 		dtmMarieial.addTableModelListener(new TableModelListener() 
 		{
@@ -792,7 +779,7 @@ public class Main extends JFrame
 		});
 	}
 
-	private void lisnerYour() 
+	private void lisnerYour()//När Ercostnadtabel samanlagd costnad updateras så uppdateras samanräkningaen av priset 
 	{
 		dtmYour.addTableModelListener(new TableModelListener() 
 		{
@@ -804,93 +791,91 @@ public class Main extends JFrame
 		});
 	}
 
-	private void lisnerServiceRounder() 
+	private void lisnerServiceRounder() //När Servicetabel samanlagd costnad updateras så avrundar den nya suman
 	{
 		dtmServiceCost.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				SumCost(tableCollectedServiceCost,textTotalServiceCost);
+				SumRounder(tableCollectedServiceCost,textTotalServiceCost);
 				priseUppdate();
 			}
 		});
 	}
 
-	private void lisnerMarialRounder() 
+	private void lisnerMarialRounder()//När Matrialtabel samanlagd costnad updateras så avrundar den nya suman 
 	{
 		dtmMarieialCost.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				SumCost(tableCollectedMateralCost, textTotalMaterialCost);
+				SumRounder(tableCollectedMateralCost, textTotalMaterialCost);
 				priseUppdate();
 			}
 		});
 	}
 
-	private void lisnerYourRounder() 
+	private void lisnerYourRounder() //När Eracostnadertabel samanlagd costnad updateras så avrundar den nya suman
 	{
 		dtmYourCost.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				SumCost(tableCollectedYourCost,textYourTotalCost);
+				SumRounder(tableCollectedYourCost,textYourTotalCost);
 				priseUppdate();
 			}
 		});
 	}
 
-	private void LisnerPreptime() 
+	private void lisnerPreptimeRunder() //När samanlagda Stältidtabel updateras så avrundar den nya suman
 	{
 		dtmPrepTime.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-
-				SumCost(tableCollectedPrepTime,textTotalPrepareTime);
+				SumRounder(tableCollectedPrepTime,textTotalPrepareTime);
 				Sumtime();
 			}
 		});
 	}
 
-	private void LisnerOperationtime() 
+	private void lisnerOperationtimeRounder() //När samanlagda Tilverkningstidstidtabel updateras så avrundar den nya suman
 	{
 		dtmOperationTime.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				SumCost(tableCollectedOperationTime,textTotalOperationTime);
+				SumRounder(tableCollectedOperationTime,textTotalOperationTime);
 				Sumtime();
 			}
 		});
 	}
 
-	private void LisnerOneService() 
+	private void lisnerOneServiceRounder() //När OneService tabelen upbateras så avrundar den nya suman 
 	{
 		dtmOneServiceCost.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-				SumCost(tableOneServiceCost,textOneServiceCost);
+				SumRounder(tableOneServiceCost,textOneServiceCost);
 				priseUppdate();
 			}
 		});
 	}
 	
-	private void LisnerOneYour() 
+	private void lisnerOneYourRounder()//När OneYourcost tabelen upbateras så avrundar den nya suman  
 	{
 		dtmOneYourCost.addTableModelListener(new TableModelListener() 
 		{
 			public void tableChanged(TableModelEvent e)
 			{
-
-				SumCost(tableOneYourCost,textOneYourCost);
+				SumRounder(tableOneYourCost,textOneYourCost);
 				priseUppdate();
 			}
 		});
 	}
 
-	private static void Materialmathematics(int row, int cunt)
+	private static void Materialmathematics(int row, int cunt) //Räknar utt maten i Matrial tabelen och skriver utt den i tilhörande text ruta
 	{	
 
 		int awnser = 6;
@@ -925,7 +910,7 @@ public class Main extends JFrame
 		dtmMarieialCost.setValueAt(total, row, 0);
 	}
 
-	private static void Yourmathematics(int row, int cunt) 
+	private static void Yourmathematics(int row, int cunt) //Räknar utt maten i Eracostnader tabelen och skriver utt den i tilhörande text ruta
 	{
 		int awnser = 7;
 		double stelkostnad = 0;
@@ -966,7 +951,7 @@ public class Main extends JFrame
 		dtmOneYourCost.setValueAt(onecost, row, 0);
 	}
 
-	private static void ServiceMathematics(int row, int cunt) 
+	private static void ServiceMathematics(int row, int cunt) //Räknar utt maten i Service tabelen och skriver utt den i tilhörande text ruta
 	{
 		int awnser = 6;
 		double prispertimme = 0;
@@ -1000,13 +985,13 @@ public class Main extends JFrame
 		dtmOneServiceCost.setValueAt(onecost, row, 0);
 	}
 
-	private static double changetoprocent(double x)
+	private static double changetoprocent(double x)// Ändrar talet i prosentrutan från text till ett prosental
 	{
 		x = x/100;
 		return x = x+1;
 	}
 
-	private void NewTabelPoste(int i, Object newData)
+	private void NewTabelPoste(int i, Object newData)//Skapar ny rad i inskikad tabel tabelen 
 	{
 		String string;
 		if( i == 1)
@@ -1015,32 +1000,42 @@ public class Main extends JFrame
 		}
 	}
 
-	private void DeliteTabelPoste(JTable x, DefaultTableModel y ,DefaultTableModel z, JTextField t)
+	private void DeliteCostAndTime()//Tar bort från Servistabelen
+	{
+		int[] rows = servicetabel.getSelectedRows();
+		for(int i=0;i<rows.length;i++)
+		{
+			dtmService.removeRow(rows[i]-i);
+			dtmServiceCost.removeRow(rows[i]-i);
+			dtmPrepTime.removeRow(rows[i]-i);
+			dtmOperationTime.removeRow(rows[i]-i);
+			dtmOneServiceCost.removeRow(rows[i]-i);
+			Sumtime();
+		}
+	}
+	
+	private void DeliteTabelMaterialPoste(JTable x, DefaultTableModel y ,DefaultTableModel z, JTextField t)//Tar bort rad från Matrial tabelerna
 	{
 		int[] rows = x.getSelectedRows();
 		for(int i=0;i<rows.length;i++)
 		{
-			double r = Double.parseDouble(z.getValueAt(rows[i], 0)+"");
 			y.removeRow(rows[i]-i);
 			z.removeRow(rows[i]-i);
 		}
 	}
 
-	private void DeliteTabelYourPoste(JTable x, DefaultTableModel y ,DefaultTableModel z,DefaultTableModel w, JTextField t,JTextField u)
+	private void DeliteTabelYourPoste(JTable x, DefaultTableModel y ,DefaultTableModel z,DefaultTableModel w, JTextField t,JTextField u)//Tar bort rad från Erankostnad tabelerna
 	{
 		int[] rows = x.getSelectedRows();
 		for(int i=0;i<rows.length;i++)
 		{
-			double r = Double.parseDouble(z.getValueAt(rows[i], 0)+"");
 			y.removeRow(rows[i]-i);
 			z.removeRow(rows[i]-i);
 			w.removeRow(rows[i]-i);
 		}	
 	}
 
-
-
-	private void SumCost(JTable x, JTextField y) 
+	private void SumRounder(JTable x, JTextField y) //Omvandlar suman frå . till , och så den har två desemaler när visas
 	{
 		NumberFormat nf = NumberFormat.getInstance();
 
@@ -1077,7 +1072,7 @@ public class Main extends JFrame
 
 	}
 
-	private void NewOverValue() 
+	private void NewOverValue() // Hämtar det nya procentvärdet 
 	{
 		overMo = textMo.getText();
 		overLo = textLo.getText();
@@ -1086,13 +1081,13 @@ public class Main extends JFrame
 		overAmount = textAmount.getText();
 	}
 
-	private void AddEx()
+	private void AddEx() // Lägger till exempel namn när man startar upp programet
 	{
 		textCostemerName.setText("Exempel företag");
 		textProduce.setText("Exempel sak");
 	}
 
-	private void TabelListnerValues(JTable x, TableModelEvent e)
+	private void TabelListnerValues(JTable x, TableModelEvent e)//Beroende på vilken tabel som skickas in så väljs var den ska skickas vidare och vilken tabel som ska räknas utt
 	{
 		int row = e.getLastRow();
 		int col = e.getColumn();
@@ -1126,7 +1121,7 @@ public class Main extends JFrame
 		}
 	}
 
-	private void priseUppdate()
+	private void priseUppdate()//Updaterar textfälten total pris, st pris och st pris vid x antal.
 	{
 		double totalacost = 0;
 		double ServiceCost = 0;
@@ -1164,7 +1159,7 @@ public class Main extends JFrame
 		textTotalAmount.setText(tot);
 	}
 
-	private void Sumtime()
+	private void Sumtime()//Updaterar textfält total tid och räknar i hop den 
 	{
 		double totalacost = 0;
 		double preptime = 0;
@@ -1178,7 +1173,7 @@ public class Main extends JFrame
 
 	}
 
-	private void AddService() 
+	private void AddService() //Lägger till ny Servis rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
 		Object[] newRowServiceData = {"Nr","Service",startWalue,unit,startWalue,startWalue,startWalue};
@@ -1190,7 +1185,7 @@ public class Main extends JFrame
 		dtmOneServiceCost.addRow(newRowServiceCostData);
 	}
 
-	private void AddMaterial() 
+	private void AddMaterial() //Lägger till ny Matrial rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
 		Object[] newRowMaterialData = {"Matrial",startWalue,unit,overMo,overAffo,overVinst,startWalue};
@@ -1199,7 +1194,7 @@ public class Main extends JFrame
 		dtmMarieialCost.addRow(newRowMaterialCostData);
 	}
 
-	private void AddToYourCost()
+	private void AddToYourCost()// Läger till ny Era kostnader rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
 		Object[] newRowYourData = { "Vad", startWalue, startWalue, unit ,overLo, overAffo,overVinst,startWalue};
@@ -1209,7 +1204,7 @@ public class Main extends JFrame
 		dtmOneYourCost.addRow(newRowYourCostData);
 	}
 
-	private  double symbolchanger(JTextField tf)
+	private  double symbolchanger(JTextField tf)//Omvandlar inskickat textfelt
 	{
 		double i= 0; 
 		try {
@@ -1219,7 +1214,7 @@ public class Main extends JFrame
 
 	}
 
-	static class DecimalFormatRenderer extends DefaultTableCellRenderer 
+	static class DecimalFormatRenderer extends DefaultTableCellRenderer
 	{   
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
@@ -1233,7 +1228,6 @@ public class Main extends JFrame
 				Double val = Double.parseDouble((String)value);
 				number = formatter.format((Number)val);
 			}
-
 			return super.getTableCellRendererComponent(table, number, isSelected, hasFocus, row, column );
 		}
 	}
