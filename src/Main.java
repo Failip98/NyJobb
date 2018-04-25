@@ -78,7 +78,7 @@ public class Main extends JFrame
 	static DefaultTableModel dtmYour = new DefaultTableModel(rowDataYour, columnNamesYour);
 	//Service Tabel cost
 	static Object rowDataServiceCost[][] = {};
-	static String columnNamesServiceCost[] = { "Service Kostnader" };
+	static String columnNamesServiceCost[] = { "Service kostnader" };
 	static DefaultTableModel dtmServiceCost = new DefaultTableModel(rowDataServiceCost, columnNamesServiceCost);
 	//Matral Tabel cost
 	static Object rowDataMatrialCost[][] = {};
@@ -309,7 +309,7 @@ public class Main extends JFrame
 	private void otherTabels() //Skapar de tabeler där samanlagda prisen från varige rad hamnar 
 	{	
 		JScrollPane scrollPaneServiceCost = new JScrollPane();
-		scrollPaneServiceCost.setBounds(10, 767, 100, 140);
+		scrollPaneServiceCost.setBounds(10, 767, 106, 140);
 		contentPane.add(scrollPaneServiceCost);
 
 		tableCollectedServiceCost = new JTable();
