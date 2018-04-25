@@ -204,12 +204,12 @@ public class Main extends JFrame
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JScrollPane scrollPaneMasikin = new JScrollPane();
-		scrollPaneMasikin.setBounds(10, 127, 1514, 140);
-		contentPane.add(scrollPaneMasikin);
+		JScrollPane scrollPaneService = new JScrollPane();
+		scrollPaneService.setBounds(10, 127, 1514, 140);
+		contentPane.add(scrollPaneService);
 
 		servicetabel = new JTable();
-		scrollPaneMasikin.setViewportView(servicetabel);
+		scrollPaneService.setViewportView(servicetabel);
 
 		JScrollPane scrollPaneMatrial = new JScrollPane();
 		scrollPaneMatrial.setBounds(10, 332, 1514, 140);
@@ -763,7 +763,6 @@ public class Main extends JFrame
 			public void tableChanged(TableModelEvent e)
 			{
 				TabelListnerValues(servicetabel,e);
-				priseUppdate();
 			}
 		});
 	}
@@ -786,7 +785,6 @@ public class Main extends JFrame
 			public void tableChanged(TableModelEvent e)
 			{
 				TabelListnerValues(Yourtable,e);
-				priseUppdate();
 			}
 		});
 	}
