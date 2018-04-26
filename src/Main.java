@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
@@ -23,13 +24,31 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileFilter;
+
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDCIDFont;
+import org.apache.pdfbox.pdmodel.font.PDCIDFontType0;
+import org.apache.pdfbox.pdmodel.font.PDCIDFontType2;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1CFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.PDType3Font;
+import org.apache.pdfbox.pdmodel.graphics.PDFontSetting;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class Main extends JFrame 
 {
@@ -41,7 +60,7 @@ public class Main extends JFrame
 
 	JComboBox nr;
 	JComboBox Serice;
-
+	
 	// Start värden och standarvärden
 	static String startWalue = "0";
 	static String startAmount = "1";
@@ -62,6 +81,13 @@ public class Main extends JFrame
 	JList listYourAffo;
 	JList listYourProfit;
 	JList listYourPris;
+	
+	
+	//JONAS---
+	final JFileChooser fc = new JFileChooser();
+	
+	ArrayList<Service> services = new ArrayList<>();
+	//--------
 
 	static DecimalFormat df;;
 	//Service Table
@@ -172,6 +198,14 @@ public class Main extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 1920, 1080);
 		setVisible(true);
+		
+		//JONAS---
+		fc.setAcceptAllFileFilterUsed(false);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("PDF file", "pdf");
+		fc.addChoosableFileFilter(filter);
+		fc.setDialogTitle("Importera prislista (PDF-fil)");
+		fc.setCurrentDirectory(null);
+		//--------
 
 		maintables();
 		panelMaterial();
@@ -232,13 +266,16 @@ public class Main extends JFrame
 	private void panelServiceLists() //Skappar Service tabelen
 	{
 		servicetabel.setModel(dtmService);
-		Commboboxnr(servicetabel);
-		CommboboxService(servicetabel);
+		//Jonas-------------
+		//Commboboxnr(servicetabel);
+		//CommboboxService(servicetabel);
+		//--------------------
 		servicetabel.getColumnModel().getColumn(6).setCellRenderer(new DecimalFormatRenderer() );
 		dtmService.addTableModelListener(new TableModelListener()
 		{
 			public void tableChanged(TableModelEvent e) 
 			{
+				//System.out.println("HEJ");
 				int row = e.getLastRow();
 				int col = e.getColumn();
 				if (col >= 0)
@@ -248,23 +285,59 @@ public class Main extends JFrame
 				}
 			}
 		});
+		
 	}
 
 	private void Commboboxnr(JTable tabel)//Sakapar comboboxsarna i tabelen 
 	{
-		String[] Servicenr = {"111","222","333"};
-		JComboBox nr = new JComboBox(Servicenr);
-
+		//Jonas-----------
+		ArrayList<Object> Servicenr = new ArrayList<Object>();
+		
+		for (int i = 0; i < services.size(); i++)
+		{
+			Servicenr.add(services.get(i).data_.toArray()[0]);
+		}
+		
+		nr = new JComboBox(Servicenr.toArray());
+		//---------------
 		tabel.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(nr));
+		
+		//JONAS---------
+		nr.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int i = nr.getSelectedIndex();
+				dtmService.setValueAt(services.get(i).data_.toArray()[1], tabel.getSelectedRow(), 1);
+				dtmService.setValueAt(services.get(i).data_.toArray()[2], tabel.getSelectedRow(), 2);
+			}
+		});
+		//------------
 	}
 	
 	private void CommboboxService(JTable tabel)//Sakapar comboboxsarna i tabelen 
 	{
-		String[] ServiceThing = {"Sverv","Fräs","Karuselsverv"};
-		JComboBox Service = new JComboBox(ServiceThing);
-
-		tabel.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(Service));
+		//Jonas------------
+		ArrayList<Object> ServiceThing = new ArrayList<Object>();
+		
+		for (int i = 0; i < services.size(); i++)
+		{
+			ServiceThing.add(services.get(i).data_.toArray()[1]);
+		}
+		
+		Serice = new JComboBox(ServiceThing.toArray());
+		//--------------
+		tabel.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(Serice));
+		
+		//JONAS---------
+		Serice.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int i = Serice.getSelectedIndex();
+				dtmService.setValueAt(services.get(i).data_.toArray()[0], tabel.getSelectedRow(), 0);
+				dtmService.setValueAt(services.get(i).data_.toArray()[2], tabel.getSelectedRow(), 2);
+			}
+		});
+		//------------
 	}
+	
 
 	private void panelMaterial() //Skappar Matrial tabelen
 	{
@@ -279,7 +352,7 @@ public class Main extends JFrame
 				int col = e.getColumn();
 				if (col >= 0)
 				{
-					System.out.println("RAD " + row + " COL " + col);
+					//System.out.println("RAD " + row + " COL " + col);
 					Object newData = Matrialtable.getValueAt(row, col);
 					NewTabelPoste(col, newData);
 				}
@@ -389,18 +462,48 @@ public class Main extends JFrame
 	private void buttons() //Skapar alla knappar
 	{
 		JButton btnImport = new JButton("Import");
-		btnImport.addMouseListener(new MouseAdapter() 
+		btnImport.addMouseListener(new MouseAdapter()
 		{
-			@Override
 			public void mouseClicked(MouseEvent e) 
 			{
-				System.out.println("Import");
+				//Jonas--------
+				int returnVal = fc.showOpenDialog(Main.this);
+				//int returnVal = JFileChooser.APPROVE_OPTION;
+				if (returnVal == JFileChooser.APPROVE_OPTION)
+				{
+					String path = fc.getSelectedFile().getAbsolutePath();
+					String filename = fc.getSelectedFile().getName();
+					textImport.setText(filename);
+					
+					try {
+						ReadPriceList(path);
+						Commboboxnr(servicetabel);
+						CommboboxService(servicetabel);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+				//-------------
+				
 			}
 		});
 		btnImport.setBounds(1589, 38, 89, 23);
 		contentPane.add(btnImport);
 
 		JButton btnSave = new JButton("Spara");
+		btnSave.addMouseListener(new MouseAdapter()
+		{
+			public void mouseClicked(MouseEvent e) 
+			{
+				//Jonas----------
+				try {
+					CreateSimplePDF();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				//--------------
+			}
+		});
 		btnSave.setBounds(1787, 931, 89, 23);
 		contentPane.add(btnSave);
 
@@ -1046,7 +1149,7 @@ public class Main extends JFrame
 			if (d > 0)
 			{
 				s = String.format("%.2f", d);
-				System.out.println("STRING: " + s);
+				//System.out.println("STRING: " + s);
 				try 
 				{
 					d = nf.parse(s).doubleValue();
@@ -1056,7 +1159,7 @@ public class Main extends JFrame
 			
 			sum = sum + d;
 			
-			System.out.println("VARDE: " + d + " SUMMA: " + sum);
+			//System.out.println("VARDE: " + d + " SUMMA: " + sum);
 			
 			if (sum == 0)
 			{
@@ -1089,13 +1192,13 @@ public class Main extends JFrame
 		int col = e.getColumn();
 		int cunt = x.getColumnCount();
 
-		System.out.println(row);
-		System.out.println(col);
+		//System.out.println(row);
+		//System.out.println(col);
 
 		if (col >= 0)
 		{
 			Object newData = x.getValueAt(row, col);
-			System.out.println("New: " + newData.toString());
+			//System.out.println("New: " + newData.toString());
 			if (col >= 0 && col <=cunt)
 			{
 				if(isDouble(newData) == true)
@@ -1164,7 +1267,7 @@ public class Main extends JFrame
 		operationtime = symbolchanger(textTotalOperationTime);
 
 		totalacost = preptime + operationtime;
-		System.out.println(totalacost);
+		//System.out.println(totalacost);
 		textTotalTime.setText(String.format("%.2f", totalacost));
 
 	}
@@ -1209,6 +1312,108 @@ public class Main extends JFrame
 		return i;
 
 	}
+	
+	//JONAS----
+	public void ReadPriceList(String path) throws Exception
+	{
+		try (PDDocument document = PDDocument.load(new File(path))) {
+ 
+            document.getClass();
+
+            if (!document.isEncrypted()) {
+
+                //PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+                //stripper.setSortByPosition(true);
+
+                PDFTextStripper tStripper = new PDFTextStripper();
+                tStripper.setSortByPosition(true);
+                
+                String pdfFileInText = tStripper.getText(document);
+                
+                
+                String lines[] = pdfFileInText.split("\\;");
+                int counter = 0;
+                Service s = new Service();
+                for (String line : lines)
+                {
+                	//Tar bort whitespace i början av strängen
+                	String leftRemoved = line.replaceAll("^\\s+", "");
+                	if (leftRemoved.compareTo("") != 0)
+                	{
+	                	if (counter % 4 == 0)
+	                	{
+	                		s = new Service();
+	                		services.add(s);
+	                	}
+	                	System.out.println(leftRemoved);
+	                	s.AddData(leftRemoved);
+	                	counter++;
+                	}
+                }
+                /*
+                for (int i = 0; i < services.size(); i++)
+                {
+                	System.out.println(services.get(i).data_.toArray()[1]);
+                }
+                */
+                
+            }
+        }
+	}
+	
+	public void ReadOffer()
+	{
+		
+	}
+	
+	public void CreateSimplePDF() throws Exception
+	{
+		fc.showSaveDialog(this);
+		String filename = fc.getSelectedFile().getAbsolutePath();
+		
+		//filename = "C:/temp/simplePDF.pdf";
+		
+		ArrayList<String> exportData = new ArrayList<String>();
+		
+		for (int i = 0; i < services.size(); i++)
+		{
+			exportData.add(services.get(i).data_.toArray()[0].toString() + ";    " +
+					services.get(i).data_.toArray()[1].toString() + ";    " + 
+					services.get(i).data_.toArray()[2].toString() + ";    " +
+					services.get(i).data_.toArray()[3].toString() + ";");
+		}
+		
+		try (PDDocument doc = new PDDocument())
+		{
+			
+			PDPage page = new PDPage();
+			doc.addPage(page);
+		
+			PDFont font = PDType1Font.HELVETICA;
+			
+		
+			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
+			{
+				int startLineX = 10;
+				int startLineY = 750;
+				for (int i = 0; i < exportData.size(); i++)
+				{
+					System.out.println(exportData.get(i));
+					
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.newLineAtOffset(startLineX, startLineY);
+					contents.showText(exportData.get(i));
+					contents.endText();
+					startLineY -= 12;
+				}
+			}
+           
+			doc.save(filename);
+		}
+	}
+	
+	//------------
 
 	static class DecimalFormatRenderer extends DefaultTableCellRenderer
 	{   
