@@ -400,10 +400,6 @@ public class Main extends JFrame
 		btnImport.setBounds(1589, 38, 89, 23);
 		contentPane.add(btnImport);
 
-		JButton btnPrint = new JButton("Skriv ut");
-		btnPrint.setBounds(1787, 965, 89, 23);
-		contentPane.add(btnPrint);
-
 		JButton btnSave = new JButton("Spara");
 		btnSave.setBounds(1787, 931, 89, 23);
 		contentPane.add(btnSave);
