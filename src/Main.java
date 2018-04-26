@@ -315,8 +315,10 @@ public class Main extends JFrame
 		tableCollectedServiceCost = new JTable();
 		tableCollectedServiceCost.setDefaultEditor(Object.class, null);
 		scrollPaneServiceCost.setViewportView(tableCollectedServiceCost);
+		
 		tableCollectedServiceCost.setModel(dtmServiceCost);
-
+		tableCollectedServiceCost.getColumnModel().getColumn(0).setCellRenderer(new DecimalFormatRenderer() );
+		
 		JScrollPane scrollPaneMatreialCost = new JScrollPane();
 		scrollPaneMatreialCost.setBounds(131, 767, 106, 140);
 		contentPane.add(scrollPaneMatreialCost);
