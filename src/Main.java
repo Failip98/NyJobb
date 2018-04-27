@@ -1334,29 +1334,61 @@ public class Main extends JFrame
                 String lines[] = pdfFileInText.split("\\;");
                 int counter = 0;
                 Service s = new Service();
-                for (String line : lines)
+                int status = 0;
+                while (counter < lines.length - 1)
                 {
-                	//Tar bort whitespace i början av strängen
-                	String leftRemoved = line.replaceAll("^\\s+", "");
-                	if (leftRemoved.compareTo("") != 0)
+                	String checker = lines[counter].replaceAll("^\\s+", "");
+                	if(checker.compareTo("SERVICE") == 0)
                 	{
-	                	if (counter % 4 == 0)
-	                	{
-	                		s = new Service();
-	                		services.add(s);
-	                	}
-	                	System.out.println(leftRemoved);
-	                	s.AddData(leftRemoved);
-	                	counter++;
+                		counter++;
+                		int numServices = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
+        				ArrayList<Object> temp;
+        				counter++;
+        				
+        				for (int i = 0; i < numServices; i++)
+        				{
+        					temp = new ArrayList<Object>();
+        					for (int j = 0; j < 7; j++)
+            				{
+        						System.out.println(lines[counter].replaceAll("^\\s+", ""));
+            					temp.add(lines[counter].replaceAll("^\\s+", ""));
+            					counter++;
+            				}
+        					dtmService.addRow(temp.toArray());
+        				}
+                	}
+                	else if(checker.compareTo("MATERIAL") == 0)
+                	{
+                		
+                	}
+                	else if(checker.compareTo("ERA KOSTNADER") == 0)
+                	{
+                		
+                	}
+                	else if(checker.compareTo("METODER") == 0)
+                	{
+                		counter++;
+                		int numMethods = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
+                		//Tar bort whitespace i början av strängen
+                    	
+                		counter++;
+                		
+                		for (int i = 0; i < numMethods; i++)
+                		{
+                			s = new Service();
+                			services.add(s);
+                			for (int j = 0; j < 4; j++)
+                			{
+                				String leftRemoved = lines[counter].replaceAll("^\\s+", "");
+                				if (leftRemoved.compareTo("") != 0)
+                				{
+                					s.AddData(leftRemoved);
+                					counter++;
+                				}
+                			}
+                		}
                 	}
                 }
-                /*
-                for (int i = 0; i < services.size(); i++)
-                {
-                	System.out.println(services.get(i).data_.toArray()[1]);
-                }
-                */
-                
             }
         }
 	}
@@ -1375,12 +1407,91 @@ public class Main extends JFrame
 		
 		ArrayList<String> exportData = new ArrayList<String>();
 		
-		for (int i = 0; i < services.size(); i++)
+		if (services.size() > 0)
 		{
-			exportData.add(services.get(i).data_.toArray()[0].toString() + ";    " +
-					services.get(i).data_.toArray()[1].toString() + ";    " + 
-					services.get(i).data_.toArray()[2].toString() + ";    " +
-					services.get(i).data_.toArray()[3].toString() + ";");
+			exportData.add("METODER;");
+			exportData.add(Integer.toString(services.size()) + ";");
+			for (int i = 0; i < services.size(); i++)
+			{
+				exportData.add(services.get(i).data_.toArray()[0].toString() + ";    " +
+						services.get(i).data_.toArray()[1].toString() + ";    " + 
+						services.get(i).data_.toArray()[2].toString() + ";    " +
+						services.get(i).data_.toArray()[3].toString() + ";");
+			}
+		}
+		
+		
+		if (dtmService.getRowCount() > 0)
+		{
+			exportData.add("SERVICE;");
+			exportData.add(Integer.toString(dtmService.getRowCount()) + ";");
+			/*exportData.add(dtmService.getColumnName(0) + ";   " +
+					dtmService.getColumnName(1) + ";   " +
+					dtmService.getColumnName(2) + ";   " +
+					dtmService.getColumnName(3) + ";   " +
+					dtmService.getColumnName(4) + ";   " +
+					dtmService.getColumnName(5) + ";   " +
+					dtmService.getColumnName(6) + ";");
+			*/		
+			for (int i = 0; i < dtmService.getRowCount(); i++)
+			{
+				exportData.add(dtmService.getValueAt(i,0).toString() + ";   " + 
+						dtmService.getValueAt(i,1).toString() + ";   " + 
+						dtmService.getValueAt(i,2).toString() + ";   " +
+						dtmService.getValueAt(i,3).toString() + ";   " +
+						dtmService.getValueAt(i,4).toString() + ";   " +
+						dtmService.getValueAt(i,5).toString() + ";   " +
+						dtmService.getValueAt(i,6).toString() + ";   ");
+			}
+		}
+		
+		if (dtmMarieial.getRowCount() > 0)
+		{
+			exportData.add("MATERIAL;");
+			exportData.add(Integer.toString(dtmMarieial.getRowCount()) + ";");
+			/*exportData.add(dtmMarieial.getColumnName(0) + ";   " +
+					dtmMarieial.getColumnName(1) + ";   " +
+					dtmMarieial.getColumnName(2) + ";   " +
+					dtmMarieial.getColumnName(3) + ";   " +
+					dtmMarieial.getColumnName(4) + ";   " +
+					dtmMarieial.getColumnName(5) + ";   " +
+					dtmMarieial.getColumnName(6) + ";");
+				*/	
+			for (int i = 0; i < dtmMarieial.getRowCount(); i++)
+			{
+				exportData.add(dtmMarieial.getValueAt(i,0).toString() + ";   " + 
+						dtmMarieial.getValueAt(i,1).toString() + ";   " + 
+						dtmMarieial.getValueAt(i,2).toString() + ";   " +
+						dtmMarieial.getValueAt(i,3).toString() + ";   " +
+						dtmMarieial.getValueAt(i,4).toString() + ";   " +
+						dtmMarieial.getValueAt(i,5).toString() + ";   " +
+						dtmMarieial.getValueAt(i,6).toString() + ";   ");
+			}
+		}
+		
+		
+		if (dtmYour.getRowCount() > 0)
+		{
+			exportData.add("ERA KOSTNADER;");
+			exportData.add(Integer.toString(dtmYour.getRowCount()) + ";");
+			/*exportData.add(dtmYour.getColumnName(0) + ";   " +
+					dtmYour.getColumnName(1) + ";   " +
+					dtmYour.getColumnName(2) + ";   " +
+					dtmYour.getColumnName(3) + ";   " +
+					dtmYour.getColumnName(4) + ";   " +
+					dtmYour.getColumnName(5) + ";   " +
+					dtmYour.getColumnName(6) + ";");
+				*/	
+			for (int i = 0; i < dtmYour.getRowCount(); i++)
+			{
+				exportData.add(dtmYour.getValueAt(i,0).toString() + ";   " + 
+						dtmYour.getValueAt(i,1).toString() + ";   " + 
+						dtmYour.getValueAt(i,2).toString() + ";   " +
+						dtmYour.getValueAt(i,3).toString() + ";   " +
+						dtmYour.getValueAt(i,4).toString() + ";   " +
+						dtmYour.getValueAt(i,5).toString() + ";   " +
+						dtmYour.getValueAt(i,6).toString() + ";   ");
+			}
 		}
 		
 		try (PDDocument doc = new PDDocument())
@@ -1398,8 +1509,6 @@ public class Main extends JFrame
 				int startLineY = 750;
 				for (int i = 0; i < exportData.size(); i++)
 				{
-					System.out.println(exportData.get(i));
-					
 					contents.beginText();
 					contents.setFont(font, 10);
 					contents.newLineAtOffset(startLineX, startLineY);
