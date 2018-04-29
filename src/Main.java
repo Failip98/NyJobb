@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.text.DecimalFormat;
@@ -306,8 +307,12 @@ public class Main extends JFrame
 		nr.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int i = nr.getSelectedIndex();
-				dtmService.setValueAt(services.get(i).data_.toArray()[1], tabel.getSelectedRow(), 1);
-				dtmService.setValueAt(services.get(i).data_.toArray()[2], tabel.getSelectedRow(), 2);
+				
+				if (tabel.getSelectedRow() > -1)
+				{
+					dtmService.setValueAt(services.get(i).data_.toArray()[1], tabel.getSelectedRow(), 1);
+					dtmService.setValueAt(services.get(i).data_.toArray()[2], tabel.getSelectedRow(), 2);
+				}
 			}
 		});
 		//------------
@@ -476,6 +481,7 @@ public class Main extends JFrame
 					textImport.setText(filename);
 					
 					try {
+						NewOverValue();
 						ReadPriceList(path);
 						Commboboxnr(servicetabel);
 						CommboboxService(servicetabel);
@@ -1283,7 +1289,7 @@ public class Main extends JFrame
 		dtmOperationTime.addRow(newRowServiceCostData);
 		dtmOneServiceCost.addRow(newRowServiceCostData);
 	}
-
+	
 	private void AddMaterial() //Lägger till ny Matrial rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
@@ -1338,9 +1344,9 @@ public class Main extends JFrame
                 while (counter < lines.length - 1)
                 {
                 	String checker = lines[counter].replaceAll("^\\s+", "");
+                	counter++;
                 	if(checker.compareTo("SERVICE") == 0)
                 	{
-                		counter++;
                 		int numServices = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
         				ArrayList<Object> temp;
         				counter++;
@@ -1350,24 +1356,146 @@ public class Main extends JFrame
         					temp = new ArrayList<Object>();
         					for (int j = 0; j < 7; j++)
             				{
-        						System.out.println(lines[counter].replaceAll("^\\s+", ""));
+        						//System.out.println(lines[counter].replaceAll("^\\s+", ""));
             					temp.add(lines[counter].replaceAll("^\\s+", ""));
             					counter++;
             				}
         					dtmService.addRow(temp.toArray());
+
+        					double prispertimme = Double.parseDouble(temp.get(2)+"");
+        					double antal = Integer.parseInt(temp.get(3)+"");
+        					double steltid = Double.parseDouble(temp.get(4)+"");
+        					double oprationstid = Double.parseDouble(temp.get(5)+"");
+        					
+        					double total = 0;
+        					double onecost = 0;
+        					
+        					if (antal == 0)
+        					{
+        						total = 0;
+        						onecost = 0;
+        					}
+        					else
+        					{
+        						total = ((prispertimme*(steltid))+((oprationstid*prispertimme)*antal));
+        						onecost = ((prispertimme*steltid)+(oprationstid*prispertimme));
+        					}
+        					
+        					Object[] temp2 = {total};
+        					dtmServiceCost.addRow(temp2);
+        					temp2[0] = steltid;
+        					dtmPrepTime.addRow(temp2);
+        					temp2[0] = oprationstid;
+        					dtmOperationTime.addRow(temp2);
+        					temp2[0] = onecost;
+        					dtmOneServiceCost.addRow(temp2);
+        					
         				}
+        				servicetabel.setModel(dtmService);
+        				
+        				//Commboboxnr(servicetabel);
                 	}
                 	else if(checker.compareTo("MATERIAL") == 0)
                 	{
-                		
+                		int numMaterials = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
+        				ArrayList<Object> temp;
+        				counter++;
+        				
+        				for (int i = 0; i < numMaterials; i++)
+        				{
+        					temp = new ArrayList<Object>();
+        					for (int j = 0; j < 7; j++)
+            				{
+        						//System.out.println(lines[counter].replaceAll("^\\s+", ""));
+            					temp.add(lines[counter].replaceAll("^\\s+", ""));
+            					counter++;
+            				}
+        					dtmMarieial.addRow(temp.toArray());
+
+        					double pris = Double.parseDouble(temp.get(1)+"");
+        					double st = Double.parseDouble(temp.get(2)+"");
+        					double mo = Double.parseDouble(temp.get(3)+"");
+        					double affo = Double.parseDouble(temp.get(4)+"");
+        					double vinst = Double.parseDouble(temp.get(5)+"");
+        					double total = 0;
+        					
+        					mo = changetoprocent(mo);
+        					affo = changetoprocent(affo);
+        					vinst = changetoprocent(vinst);
+
+        					if (st == 0)
+        					{
+        						total = 0;
+        					}
+        					else
+        					{
+        						total = (pris*st)*mo*affo*vinst;
+        					}
+        					
+        					Object[] temp2 = {total};
+        					dtmMarieialCost.addRow(temp2);
+        				}
+        				Matrialtable.setModel(dtmMarieial);
                 	}
                 	else if(checker.compareTo("ERA KOSTNADER") == 0)
                 	{
-                		
+                		int numYourCosts = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
+        				ArrayList<Object> temp;
+        				counter++;
+        				
+        				for (int i = 0; i < numYourCosts; i++)
+        				{
+        					temp = new ArrayList<Object>();
+        					for (int j = 0; j < 8; j++)
+            				{
+        						//System.out.println(lines[counter].replaceAll("^\\s+", ""));
+            					temp.add(lines[counter].replaceAll("^\\s+", ""));
+            					counter++;
+            				}
+        					dtmYour.addRow(temp.toArray());
+
+        					double stelkostnad = 0;
+        					int antal = 0;
+        					double stpris = 0;
+        					double lo = 0;
+        					double affo = 0;
+        					double vinst = 0;
+        					double total = 0;
+        					double onecost = 0;
+        					int one = 1;
+
+        					stelkostnad = Double.parseDouble(temp.get(1)+"");
+        					stpris = Double.parseDouble(temp.get(2)+"");
+        					antal = Integer.parseInt(temp.get(3)+"");
+        					lo = Double.parseDouble(temp.get(4)+"");
+        					affo = Double.parseDouble(temp.get(5)+"");
+        					vinst = Double.parseDouble(temp.get(6)+"");
+
+        					lo = changetoprocent(lo);
+        					affo = changetoprocent(affo);
+        					vinst = changetoprocent(vinst);
+
+        					if (antal == 0)
+        					{
+        						total = 0;
+        						onecost = 0;
+        					}
+        					else
+        					{
+        						total = ((stelkostnad)+(stpris*antal))*lo*affo*vinst;
+        						onecost =((stelkostnad)+(stpris*one))*lo*affo*vinst;
+        					}
+        					
+        					Object[] temp2 = {total};
+        					dtmYourCost.addRow(temp2);
+        					temp2[0] = onecost;
+        					dtmOneYourCost.addRow(temp2);
+        					
+        				}
+        				Yourtable.setModel(dtmYour);
                 	}
                 	else if(checker.compareTo("METODER") == 0)
                 	{
-                		counter++;
                 		int numMethods = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
                 		//Tar bort whitespace i början av strängen
                     	
@@ -1388,6 +1516,45 @@ public class Main extends JFrame
                 			}
                 		}
                 	}
+                	else if(checker.compareTo("DATUM") == 0)
+                	{
+                		String date = lines[counter].replaceAll("^\\s+", "");
+                		textFieldDatum.setText(date);
+                		counter++;
+                	}
+                	else if(checker.compareTo("KUND") == 0)
+                	{
+                		String customer = lines[counter].replaceAll("^\\s+", "");
+                		textCostemerName.setText(customer);
+                		counter++;
+                	}
+                	else if(checker.compareTo("TILLVERKAS") == 0)
+                	{
+                		String item = lines[counter].replaceAll("^\\s+", "");
+                		textProduce.setText(item);
+                		counter++;
+                	}
+                	else if(checker.compareTo("ANTAL") == 0)
+                	{
+                		String amount = lines[counter].replaceAll("^\\s+", "");
+                		textAmount.setText(amount);
+                		counter++;
+                	}
+                	else if(checker.compareTo("MO LO AFFO VINST") == 0)
+                	{
+                		String mo = lines[counter].replaceAll("^\\s+", "");
+                		textAmount.setText(mo);
+                		counter++;
+                		String lo = lines[counter].replaceAll("^\\s+", "");
+                		textAmount.setText(lo);
+                		counter++;
+                		String affo = lines[counter].replaceAll("^\\s+", "");
+                		textAmount.setText(affo);
+                		counter++;
+                		String vinst = lines[counter].replaceAll("^\\s+", "");
+                		textAmount.setText(vinst);
+                		counter++;
+                	}
                 }
             }
         }
@@ -1407,6 +1574,29 @@ public class Main extends JFrame
 		
 		ArrayList<String> exportData = new ArrayList<String>();
 		
+		exportData.add("DATUM;");
+		exportData.add(textDate.getText() + ";");
+		exportData.add("");
+		
+		exportData.add("KUND;");
+		exportData.add(textCostemerName.getText() + ";");
+		exportData.add("");
+		
+		exportData.add("TILLVERKAS;");
+		exportData.add(textProduce.getText() + ";");
+		exportData.add("");
+		
+		exportData.add("ANTAL;");
+		exportData.add(textAmount.getText() + ";");
+		exportData.add("");
+		
+		exportData.add("MO LO AFFO VINST;");
+		exportData.add(textMo.getText() + ";   " + 
+						textLo.getText() + ";   " + 
+						textAffo.getText() + ";   " +
+						textVinst.getText() + ";");
+		exportData.add("");
+		
 		if (services.size() > 0)
 		{
 			exportData.add("METODER;");
@@ -1418,6 +1608,7 @@ public class Main extends JFrame
 						services.get(i).data_.toArray()[2].toString() + ";    " +
 						services.get(i).data_.toArray()[3].toString() + ";");
 			}
+			exportData.add("");
 		}
 		
 		
@@ -1443,6 +1634,8 @@ public class Main extends JFrame
 						dtmService.getValueAt(i,5).toString() + ";   " +
 						dtmService.getValueAt(i,6).toString() + ";   ");
 			}
+			
+			exportData.add("");
 		}
 		
 		if (dtmMarieial.getRowCount() > 0)
@@ -1467,6 +1660,7 @@ public class Main extends JFrame
 						dtmMarieial.getValueAt(i,5).toString() + ";   " +
 						dtmMarieial.getValueAt(i,6).toString() + ";   ");
 			}
+			exportData.add("");
 		}
 		
 		
@@ -1490,9 +1684,15 @@ public class Main extends JFrame
 						dtmYour.getValueAt(i,3).toString() + ";   " +
 						dtmYour.getValueAt(i,4).toString() + ";   " +
 						dtmYour.getValueAt(i,5).toString() + ";   " +
-						dtmYour.getValueAt(i,6).toString() + ";   ");
+						dtmYour.getValueAt(i,6).toString() + ";   " +
+						dtmYour.getValueAt(i,7).toString() + ";   ");
 			}
+			exportData.add("");
 		}
+		
+		exportData.add("FRAKT;");
+		exportData.add(textShippingCost.getText() + ";");
+		exportData.add("");
 		
 		try (PDDocument doc = new PDDocument())
 		{
@@ -1511,6 +1711,7 @@ public class Main extends JFrame
 				{
 					contents.beginText();
 					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLUE);
 					contents.newLineAtOffset(startLineX, startLineY);
 					contents.showText(exportData.get(i));
 					contents.endText();
