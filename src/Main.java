@@ -2,6 +2,7 @@
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.FileDialog;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -27,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -48,6 +50,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1CFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.PDType3Font;
 import org.apache.pdfbox.pdmodel.graphics.PDFontSetting;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
@@ -85,7 +88,7 @@ public class Main extends JFrame
 	
 	
 	//JONAS---
-	final JFileChooser fc = new JFileChooser();
+	final FileDialog fc = new FileDialog(this, "Öppna", FileDialog.LOAD);
 	
 	ArrayList<Service> services = new ArrayList<>();
 	//--------
@@ -201,11 +204,9 @@ public class Main extends JFrame
 		setVisible(true);
 		
 		//JONAS---
-		fc.setAcceptAllFileFilterUsed(false);
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("PDF file", "pdf");
-		fc.addChoosableFileFilter(filter);
-		fc.setDialogTitle("Importera prislista (PDF-fil)");
-		fc.setCurrentDirectory(null);
+		fc.setFile("*.pdf");
+		fc.setTitle("Importera fil (PDF-fil)");
+		fc.setDirectory(null);
 		//--------
 
 		maintables();
@@ -472,23 +473,26 @@ public class Main extends JFrame
 			public void mouseClicked(MouseEvent e) 
 			{
 				//Jonas--------
-				int returnVal = fc.showOpenDialog(Main.this);
+				fc.setVisible(true);
 				//int returnVal = JFileChooser.APPROVE_OPTION;
-				if (returnVal == JFileChooser.APPROVE_OPTION)
+				String path = fc.getDirectory();
+				String filename = path + fc.getFile();
+				
+				if (fc.getFile() != null)
 				{
-					String path = fc.getSelectedFile().getAbsolutePath();
-					String filename = fc.getSelectedFile().getName();
+					//System.out.println(filename);
 					textImport.setText(filename);
-					
+
 					try {
 						NewOverValue();
-						ReadPriceList(path);
+						ReadPriceList(filename);
 						Commboboxnr(servicetabel);
 						CommboboxService(servicetabel);
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
 				}
+				
 				//-------------
 				
 			}
@@ -1543,16 +1547,16 @@ public class Main extends JFrame
                 	else if(checker.compareTo("MO LO AFFO VINST") == 0)
                 	{
                 		String mo = lines[counter].replaceAll("^\\s+", "");
-                		textAmount.setText(mo);
+                		textMo.setText(mo);
                 		counter++;
                 		String lo = lines[counter].replaceAll("^\\s+", "");
-                		textAmount.setText(lo);
+                		textLo.setText(lo);
                 		counter++;
                 		String affo = lines[counter].replaceAll("^\\s+", "");
-                		textAmount.setText(affo);
+                		textAffo.setText(affo);
                 		counter++;
                 		String vinst = lines[counter].replaceAll("^\\s+", "");
-                		textAmount.setText(vinst);
+                		textVinst.setText(vinst);
                 		counter++;
                 	}
                 }
@@ -1567,8 +1571,12 @@ public class Main extends JFrame
 	
 	public void CreateSimplePDF() throws Exception
 	{
-		fc.showSaveDialog(this);
-		String filename = fc.getSelectedFile().getAbsolutePath();
+		FileDialog fc2 = new FileDialog(this, "Spara", FileDialog.SAVE);
+		fc2.setFile("*.pdf");
+		fc2.setVisible(true);
+		
+		String filename = fc2.getDirectory() + fc2.getFile();
+		//System.out.println("FILNAMN: " + filename);
 		
 		//filename = "C:/temp/simplePDF.pdf";
 		
@@ -1685,14 +1693,102 @@ public class Main extends JFrame
 						dtmYour.getValueAt(i,4).toString() + ";   " +
 						dtmYour.getValueAt(i,5).toString() + ";   " +
 						dtmYour.getValueAt(i,6).toString() + ";   " +
-						dtmYour.getValueAt(i,7).toString() + ";   ");
+						dtmYour.getValueAt(i,7).toString() + ";");
 			}
 			exportData.add("");
 		}
 		
-		exportData.add("FRAKT;");
-		exportData.add(textShippingCost.getText() + ";");
-		exportData.add("");
+		ArrayList<String> exportData2 = new ArrayList<String>();
+		
+		if (dtmServiceCost.getRowCount() > 0)
+		{
+			exportData2.add("SERVICE-KOSTNADER;");
+			for (int i = 0; i < dtmServiceCost.getRowCount(); i++)
+			{
+				exportData2.add(dtmServiceCost.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		if (dtmMarieialCost.getRowCount() > 0)
+		{
+			exportData2.add("MATERIALKOSTNADER;");
+			for (int i = 0; i < dtmMarieialCost.getRowCount(); i++)
+			{
+				exportData2.add(dtmMarieialCost.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		if (dtmYourCost.getRowCount() > 0)
+		{
+			exportData2.add("ERA KOSTNADER 2;");
+			for (int i = 0; i < dtmYourCost.getRowCount(); i++)
+			{
+				exportData2.add(dtmYourCost.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		if (dtmPrepTime.getRowCount() > 0)
+		{
+			exportData2.add("FÖRBEREDELSETID;");
+			for (int i = 0; i < dtmPrepTime.getRowCount(); i++)
+			{
+				exportData2.add(dtmPrepTime.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		if (dtmOperationTime.getRowCount() > 0)
+		{
+			exportData2.add("OPERATIONSTID;");
+			for (int i = 0; i < dtmOperationTime.getRowCount(); i++)
+			{
+				exportData2.add(dtmOperationTime.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		exportData2.add("TOTAL TID;");
+		exportData2.add(textTotalTime.getText() + ";");
+		exportData2.add("");
+		
+		if (dtmOneServiceCost.getRowCount() > 0)
+		{
+			exportData2.add("EN SERVICE;");
+			for (int i = 0; i < dtmOneServiceCost.getRowCount(); i++)
+			{
+				exportData2.add(dtmOneServiceCost.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		if (dtmOneYourCost.getRowCount() > 0)
+		{
+			exportData2.add("EN ERA;");
+			for (int i = 0; i < dtmOneYourCost.getRowCount(); i++)
+			{
+				exportData2.add(dtmOneYourCost.getValueAt(i, 0) + ";");
+			}
+			exportData2.add("");
+		}
+		
+		exportData2.add("FRAKT;");
+		exportData2.add(textShippingCost.getText() + ";");
+		exportData2.add("");
+		
+		exportData2.add("STYCKSUMMA VID FLERA BESTÄLLDA");
+		exportData2.add(textAmuntDivided.getText() + ";");
+		exportData2.add("");
+		
+		exportData2.add("STYCKSUMMA ");
+		exportData2.add(textUnitAmaunt.getText() + ";");
+		exportData2.add("");
+		
+		exportData2.add("TOTALKOSTNAD");
+		exportData2.add(textTotalAmount.getText() + ";");
+		exportData2.add("");
 		
 		try (PDDocument doc = new PDDocument())
 		{
@@ -1705,6 +1801,8 @@ public class Main extends JFrame
 		
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
 			{
+				PDImageXObject pdImage = PDImageXObject.createFromFile("C:/temp/hv2.png", doc);
+				contents.drawImage(pdImage, 200, 750);
 				int startLineX = 10;
 				int startLineY = 750;
 				for (int i = 0; i < exportData.size(); i++)
@@ -1714,6 +1812,27 @@ public class Main extends JFrame
 					contents.setNonStrokingColor(Color.BLUE);
 					contents.newLineAtOffset(startLineX, startLineY);
 					contents.showText(exportData.get(i));
+					contents.endText();
+					startLineY -= 12;
+				}
+			}
+			
+			PDPage page2 = new PDPage();
+			doc.addPage(page2);
+			
+			try (PDPageContentStream contents = new PDPageContentStream(doc, page2))
+			{
+				PDImageXObject pdImage = PDImageXObject.createFromFile("C:/temp/hv2.png", doc);
+				contents.drawImage(pdImage, 200, 750);
+				int startLineX = 10;
+				int startLineY = 750;
+				for (int i = 0; i < exportData2.size(); i++)
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLUE);
+					contents.newLineAtOffset(startLineX, startLineY);
+					contents.showText(exportData2.get(i));
 					contents.endText();
 					startLineY -= 12;
 				}
