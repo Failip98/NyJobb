@@ -175,7 +175,6 @@ public class Main extends JFrame
 	private JTextField textOneYourCost;
 	private JTextField textAmuntDivided;
 	private JTextField textPrislista;
-	private JTextField textFieldErlyeroffer;
 
 	public static void main(String[] args) 
 	{
@@ -634,11 +633,6 @@ public class Main extends JFrame
 		});
 		btnImporteraPrislista.setBounds(951, 7, 178, 23);
 		contentPane.add(btnImporteraPrislista);
-		//------------
-
-		JButton btnImportoffer = new JButton("Import");
-		btnImportoffer.setBounds(1438, 38, 89, 23);
-		contentPane.add(btnImportoffer);
 		
 	}
 	
@@ -756,10 +750,6 @@ public class Main extends JFrame
 		lblPrislista.setBounds(1139, 11, 46, 14);
 		contentPane.add(lblPrislista);
 		
-		JLabel lblPricelist = new JLabel("Pris lista");
-		lblPricelist.setBounds(1542, 11, 56, 14);
-		contentPane.add(lblPricelist);
-		
 		JLabel lblErlieroffer = new JLabel("Tidigare offert");
 		lblErlieroffer.setBounds(1359, 11, 80, 14);
 		contentPane.add(lblErlieroffer);
@@ -876,11 +866,6 @@ public class Main extends JFrame
 		textAmuntDivided.setBounds(1790, 767, 86, 20);
 		contentPane.add(textAmuntDivided);
 		textAmuntDivided.setColumns(10);
-		
-		textFieldErlyeroffer = new JTextField();
-		textFieldErlyeroffer.setBounds(1438, 8, 86, 20);
-		contentPane.add(textFieldErlyeroffer);
-		textFieldErlyeroffer.setColumns(10);
 	}
 
 	private static void setDate()//Sätter datumet i textrutan 
