@@ -54,6 +54,7 @@ import org.apache.pdfbox.pdmodel.font.PDType3Font;
 import org.apache.pdfbox.pdmodel.graphics.PDFontSetting;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.util.NumberFormatUtil;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class Main extends JFrame 
@@ -1615,7 +1616,7 @@ public class Main extends JFrame
         }
 	}
 	
-	public void ReadPriceList(String path) throws InvalidPasswordException, IOException
+	/*public void ReadPriceList(String path) throws InvalidPasswordException, IOException
 	{
 		try (PDDocument document = PDDocument.load(new File(path))) {
 			 
@@ -1663,6 +1664,97 @@ public class Main extends JFrame
 							}
 						}
 					}
+                }
+            }
+		}
+	}
+	*/
+	
+	public static boolean isNumeric(String str)  
+	{  
+	  try  
+	  {  
+	    double d = Double.parseDouble(str);  
+	  }  
+	  catch(NumberFormatException nfe)  
+	  {  
+	    return false;  
+	  }  
+	  return true;  
+	}
+	
+	public void ReadPriceList(String path) throws InvalidPasswordException, IOException
+	{
+		try (PDDocument document = PDDocument.load(new File(path))) {
+			 
+            document.getClass();
+
+            if (!document.isEncrypted()) {
+
+                //PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+                //stripper.setSortByPosition(true);
+
+                PDFTextStripper tStripper = new PDFTextStripper();
+                tStripper.setSortByPosition(true);
+                
+                String pdfFileInText = tStripper.getText(document);
+                
+                
+                String lines[] = pdfFileInText.split("\\r?\\n");
+                int counter = 0;
+                Service s = new Service();
+                int status = 0;
+                while (counter < lines.length - 1)
+                {
+                	CharSequence H = "kr./tim.";
+                	CharSequence Km = "kr./km.";
+                	CharSequence D = "kr./dag.";
+                	
+                	if (lines[counter].contains(H) || lines[counter].contains(Km) || lines[counter].contains(D))
+                	{
+	                	String nr = lines[counter].substring(0, 3);
+	            		nr = nr.trim();
+	            		
+	            		String service = "";
+	            		int start = 4;
+	            		if (!isNumeric(nr))
+	            		{
+	            			start = 0;
+	            		}
+	            		
+	            		service = lines[counter].substring(start, lines[counter].length() - 4);
+	            		service = service.trim();
+	            		
+	            		CharSequence curSeq = D;
+	            		
+	                	if (lines[counter].contains(H))
+	                	{
+	                		curSeq = H;
+	                	}
+	                	else if (lines[counter].contains(Km))
+	                	{
+	                		curSeq = Km;	
+	                	}
+	                	
+	                	lines[counter] = lines[counter].replace(curSeq, "");	
+	                	lines[counter] = lines[counter].trim();
+	                	
+	            		String cost = lines[counter].substring(lines[counter].length() - 4, lines[counter].length());
+	            		cost = cost.trim();
+	        			
+	        			//System.out.println(nr);
+	        			//System.out.println(service);
+	            		//System.out.println(cost);
+	
+	            		s = new Service();
+						services.add(s);
+						s.AddData(nr);
+						s.AddData(service);
+						s.AddData(cost);
+						s.AddData(curSeq);
+                	}
+                	
+                	counter++;
                 }
             }
 		}
