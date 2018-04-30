@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -42,6 +43,7 @@ import javax.swing.table.TableColumn;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.pdmodel.font.PDCIDFont;
 import org.apache.pdfbox.pdmodel.font.PDCIDFontType0;
 import org.apache.pdfbox.pdmodel.font.PDCIDFontType2;
@@ -172,6 +174,7 @@ public class Main extends JFrame
 	private JTextField textOneServiceCost;
 	private JTextField textOneYourCost;
 	private JTextField textAmuntDivided;
+	private JTextField textPrislista;
 
 	public static void main(String[] args) 
 	{
@@ -241,14 +244,14 @@ public class Main extends JFrame
 		contentPane.setLayout(null);
 
 		JScrollPane scrollPaneService = new JScrollPane();
-		scrollPaneService.setBounds(10, 127, 1514, 140);
+		scrollPaneService.setBounds(10, 127, 1884, 140);
 		contentPane.add(scrollPaneService);
 
 		servicetabel = new JTable();
 		scrollPaneService.setViewportView(servicetabel);
 
 		JScrollPane scrollPaneMatrial = new JScrollPane();
-		scrollPaneMatrial.setBounds(10, 332, 1514, 140);
+		scrollPaneMatrial.setBounds(10, 332, 1884, 140);
 		contentPane.add(scrollPaneMatrial);
 
 		Matrialtable = new JTable();
@@ -257,7 +260,7 @@ public class Main extends JFrame
 		scrollPaneMatrial.setVisible(true);
 
 		JScrollPane scrollPaneKostnader = new JScrollPane();
-		scrollPaneKostnader.setBounds(10, 537, 1514, 140);
+		scrollPaneKostnader.setBounds(10, 537, 1884, 140);
 		contentPane.add(scrollPaneKostnader);
 
 		Yourtable = new JTable();
@@ -467,12 +470,13 @@ public class Main extends JFrame
 
 	private void buttons() //Skapar alla knappar
 	{
-		JButton btnImport = new JButton("Import");
+		JButton btnImport = new JButton("Importera befintlig offert");
 		btnImport.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e) 
 			{
 				//Jonas--------
+				fc.setFile("*.pdf");
 				fc.setVisible(true);
 				//int returnVal = JFileChooser.APPROVE_OPTION;
 				String path = fc.getDirectory();
@@ -485,9 +489,7 @@ public class Main extends JFrame
 
 					try {
 						NewOverValue();
-						ReadPriceList(filename);
-						Commboboxnr(servicetabel);
-						CommboboxService(servicetabel);
+						ReadOffer(filename);
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
@@ -497,7 +499,7 @@ public class Main extends JFrame
 				
 			}
 		});
-		btnImport.setBounds(1589, 38, 89, 23);
+		btnImport.setBounds(951, 41, 178, 23);
 		contentPane.add(btnImport);
 
 		JButton btnSave = new JButton("Spara");
@@ -602,6 +604,36 @@ public class Main extends JFrame
 		});
 		btnDeliteYourCost.setBounds(209, 493, 89, 23);
 		contentPane.add(btnDeliteYourCost);
+		
+		//Jonas-----
+		JButton btnImporteraPrislista = new JButton("Importera prislista");
+		btnImporteraPrislista.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				fc.setFile("*.pdf");
+				fc.setVisible(true);
+
+				String path = fc.getDirectory();
+				String filename = path + fc.getFile();
+				
+				if (fc.getFile() != null)
+				{
+					//System.out.println(filename);
+					textPrislista.setText(filename);
+
+					try {
+						NewOverValue();
+						ReadPriceList(filename);
+						Commboboxnr(servicetabel);
+						CommboboxService(servicetabel);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		btnImporteraPrislista.setBounds(951, 7, 178, 23);
+		contentPane.add(btnImporteraPrislista);
+		//------------
 	}
 	
 	private void ServiceReset()//När alla tabeler är bortagna ur listan så stätter textfeltvärdena som hörtill till start värde
@@ -703,9 +735,20 @@ public class Main extends JFrame
 		lblUnitAmuntDivided.setBounds(1516, 764, 247, 26);
 		contentPane.add(lblUnitAmuntDivided);
 		
-		JLabel lblPricelist = new JLabel("Pris lista");
-		lblPricelist.setBounds(1530, 11, 56, 14);
+		JLabel lblPricelist = new JLabel("Offert");
+		lblPricelist.setBounds(1139, 45, 40, 14);
 		contentPane.add(lblPricelist);
+		
+		
+		
+		textPrislista = new JTextField();
+		textPrislista.setBounds(1189, 8, 335, 20);
+		contentPane.add(textPrislista);
+		textPrislista.setColumns(10);
+		
+		JLabel lblPrislista = new JLabel("Prislista");
+		lblPrislista.setBounds(1139, 11, 46, 14);
+		contentPane.add(lblPrislista);
 	}
 
 	private void textfelds() //Skapar alla textfelt
@@ -746,7 +789,7 @@ public class Main extends JFrame
 		textMo.setColumns(10);
 
 		textImport = new JTextField();
-		textImport.setBounds(1592, 8, 86, 20);
+		textImport.setBounds(1189, 42, 335, 20);
 		contentPane.add(textImport);
 		textImport.setColumns(10);
 
@@ -1144,6 +1187,35 @@ public class Main extends JFrame
 		}	
 	}
 
+	private String SumRounder(String input)
+	{
+		NumberFormat nf = NumberFormat.getInstance();
+		
+		Double d = 0.0;
+		try {
+			d = nf.parse(input).doubleValue();
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		
+		if (d > 0)
+		{
+			input = String.format("%.2f", d);
+			//System.out.println("STRING: " + s);
+			try 
+			{
+				d = nf.parse(input).doubleValue();
+			} 
+			catch (ParseException e) {}
+		}
+		else if (d == 0)
+		{
+			d = 0.00;
+		}
+		
+		return String.format("%.2f", d);
+	}
+	
 	private void SumRounder(JTable x, JTextField y) //Omvandlar suman frå . till , och så den har två desemaler när visas
 	{
 		NumberFormat nf = NumberFormat.getInstance();
@@ -1324,7 +1396,7 @@ public class Main extends JFrame
 	}
 	
 	//JONAS----
-	public void ReadPriceList(String path) throws Exception
+	public void ReadOffer(String path) throws Exception
 	{
 		try (PDDocument document = PDDocument.load(new File(path))) {
  
@@ -1340,11 +1412,8 @@ public class Main extends JFrame
                 
                 String pdfFileInText = tStripper.getText(document);
                 
-                
                 String lines[] = pdfFileInText.split("\\;");
                 int counter = 0;
-                Service s = new Service();
-                int status = 0;
                 while (counter < lines.length - 1)
                 {
                 	String checker = lines[counter].replaceAll("^\\s+", "");
@@ -1498,28 +1567,6 @@ public class Main extends JFrame
         				}
         				Yourtable.setModel(dtmYour);
                 	}
-                	else if(checker.compareTo("METODER") == 0)
-                	{
-                		int numMethods = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
-                		//Tar bort whitespace i början av strängen
-                    	
-                		counter++;
-                		
-                		for (int i = 0; i < numMethods; i++)
-                		{
-                			s = new Service();
-                			services.add(s);
-                			for (int j = 0; j < 4; j++)
-                			{
-                				String leftRemoved = lines[counter].replaceAll("^\\s+", "");
-                				if (leftRemoved.compareTo("") != 0)
-                				{
-                					s.AddData(leftRemoved);
-                					counter++;
-                				}
-                			}
-                		}
-                	}
                 	else if(checker.compareTo("DATUM") == 0)
                 	{
                 		String date = lines[counter].replaceAll("^\\s+", "");
@@ -1564,9 +1611,57 @@ public class Main extends JFrame
         }
 	}
 	
-	public void ReadOffer()
+	public void ReadPriceList(String path) throws InvalidPasswordException, IOException
 	{
-		
+		try (PDDocument document = PDDocument.load(new File(path))) {
+			 
+            document.getClass();
+
+            if (!document.isEncrypted()) {
+
+                //PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+                //stripper.setSortByPosition(true);
+
+                PDFTextStripper tStripper = new PDFTextStripper();
+                tStripper.setSortByPosition(true);
+                
+                String pdfFileInText = tStripper.getText(document);
+                
+                
+                String lines[] = pdfFileInText.split("\\;");
+                int counter = 0;
+                Service s = new Service();
+                int status = 0;
+                while (counter < lines.length - 1)
+                {
+                	String checker = lines[counter].replaceAll("^\\s+", "");
+                	counter++;
+				            	
+					if(checker.compareTo("METODER") == 0)
+					{
+						int numMethods = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
+						//Tar bort whitespace i början av strängen
+				    	
+						counter++;
+						
+						for (int i = 0; i < numMethods; i++)
+						{
+							s = new Service();
+							services.add(s);
+							for (int j = 0; j < 4; j++)
+							{
+								String leftRemoved = lines[counter].replaceAll("^\\s+", "");
+								if (leftRemoved.compareTo("") != 0)
+								{
+									s.AddData(leftRemoved);
+									counter++;
+								}
+							}
+						}
+					}
+                }
+            }
+		}
 	}
 	
 	public void CreateSimplePDF() throws Exception
@@ -1605,7 +1700,7 @@ public class Main extends JFrame
 						textVinst.getText() + ";");
 		exportData.add("");
 		
-		if (services.size() > 0)
+		/*if (services.size() > 0)
 		{
 			exportData.add("METODER;");
 			exportData.add(Integer.toString(services.size()) + ";");
@@ -1617,7 +1712,7 @@ public class Main extends JFrame
 						services.get(i).data_.toArray()[3].toString() + ";");
 			}
 			exportData.add("");
-		}
+		}*/
 		
 		
 		if (dtmService.getRowCount() > 0)
@@ -1640,7 +1735,7 @@ public class Main extends JFrame
 						dtmService.getValueAt(i,3).toString() + ";   " +
 						dtmService.getValueAt(i,4).toString() + ";   " +
 						dtmService.getValueAt(i,5).toString() + ";   " +
-						dtmService.getValueAt(i,6).toString() + ";   ");
+						SumRounder(dtmService.getValueAt(i,6).toString()) + ";   ");
 			}
 			
 			exportData.add("");
@@ -1666,7 +1761,7 @@ public class Main extends JFrame
 						dtmMarieial.getValueAt(i,3).toString() + ";   " +
 						dtmMarieial.getValueAt(i,4).toString() + ";   " +
 						dtmMarieial.getValueAt(i,5).toString() + ";   " +
-						dtmMarieial.getValueAt(i,6).toString() + ";   ");
+						SumRounder(dtmMarieial.getValueAt(i,6).toString()) + ";   ");
 			}
 			exportData.add("");
 		}
@@ -1693,65 +1788,84 @@ public class Main extends JFrame
 						dtmYour.getValueAt(i,4).toString() + ";   " +
 						dtmYour.getValueAt(i,5).toString() + ";   " +
 						dtmYour.getValueAt(i,6).toString() + ";   " +
-						dtmYour.getValueAt(i,7).toString() + ";");
+						SumRounder(dtmYour.getValueAt(i,7).toString()) + ";");
 			}
 			exportData.add("");
+		}
+		
+		for (int i = 0; i < exportData.size(); i++)
+		{
+			exportData.set(i, exportData.get(i).replace(",", "."));
 		}
 		
 		ArrayList<String> exportData2 = new ArrayList<String>();
 		
 		if (dtmServiceCost.getRowCount() > 0)
 		{
-			exportData2.add("SERVICE-KOSTNADER;");
+			exportData2.add("TOTALA SERVICEKOSTNADER;");
+			exportData2.add(SumRounder(textTotalServiceCost.getText()) + ";");
+			/*
 			for (int i = 0; i < dtmServiceCost.getRowCount(); i++)
 			{
 				exportData2.add(dtmServiceCost.getValueAt(i, 0) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
 		if (dtmMarieialCost.getRowCount() > 0)
 		{
-			exportData2.add("MATERIALKOSTNADER;");
-			for (int i = 0; i < dtmMarieialCost.getRowCount(); i++)
+			exportData2.add("TOTALA MATERIALKOSTNADER;");
+			exportData2.add(SumRounder(textTotalMaterialCost.getText()) + ";");
+			/*for (int i = 0; i < dtmMarieialCost.getRowCount(); i++)
 			{
 				exportData2.add(dtmMarieialCost.getValueAt(i, 0) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
 		if (dtmYourCost.getRowCount() > 0)
 		{
-			exportData2.add("ERA KOSTNADER 2;");
+			exportData2.add("ERA TOTALA KOSTNADER;");
+			exportData2.add(SumRounder(textYourTotalCost.getText()) + ";");
+			/*
 			for (int i = 0; i < dtmYourCost.getRowCount(); i++)
 			{
 				exportData2.add(dtmYourCost.getValueAt(i, 0) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
 		if (dtmPrepTime.getRowCount() > 0)
 		{
-			exportData2.add("FÖRBEREDELSETID;");
+			exportData2.add("TOTAL FÖRBEREDELSETID;");
+			exportData2.add(SumRounder(textTotalPrepareTime.getText()) + ";");
+			/*
 			for (int i = 0; i < dtmPrepTime.getRowCount(); i++)
 			{
 				exportData2.add(dtmPrepTime.getValueAt(i, 0) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
 		if (dtmOperationTime.getRowCount() > 0)
 		{
-			exportData2.add("OPERATIONSTID;");
+			exportData2.add("TOTAL OPERATIONSTID;");
+			exportData2.add(SumRounder(textTotalOperationTime.getText()) + ";");
+			/*
 			for (int i = 0; i < dtmOperationTime.getRowCount(); i++)
 			{
 				exportData2.add(dtmOperationTime.getValueAt(i, 0) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
 		exportData2.add("TOTAL TID;");
-		exportData2.add(textTotalTime.getText() + ";");
+		exportData2.add(SumRounder(textTotalTime.getText()) + ";");
 		exportData2.add("");
 		
 		if (dtmOneServiceCost.getRowCount() > 0)
@@ -1759,7 +1873,7 @@ public class Main extends JFrame
 			exportData2.add("EN SERVICE;");
 			for (int i = 0; i < dtmOneServiceCost.getRowCount(); i++)
 			{
-				exportData2.add(dtmOneServiceCost.getValueAt(i, 0) + ";");
+				exportData2.add(SumRounder(dtmOneServiceCost.getValueAt(i, 0).toString()) + ";");
 			}
 			exportData2.add("");
 		}
@@ -1769,7 +1883,7 @@ public class Main extends JFrame
 			exportData2.add("EN ERA;");
 			for (int i = 0; i < dtmOneYourCost.getRowCount(); i++)
 			{
-				exportData2.add(dtmOneYourCost.getValueAt(i, 0) + ";");
+				exportData2.add(SumRounder(dtmOneYourCost.getValueAt(i, 0).toString()) + ";");
 			}
 			exportData2.add("");
 		}
@@ -1798,10 +1912,11 @@ public class Main extends JFrame
 		
 			PDFont font = PDType1Font.HELVETICA;
 			
-		
+			File f = new File("bin/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
 			{
-				PDImageXObject pdImage = PDImageXObject.createFromFile("C:/temp/hv2.png", doc);
+				
+				PDImageXObject pdImage = PDImageXObject.createFromFile(f.getAbsolutePath(), doc);
 				contents.drawImage(pdImage, 200, 750);
 				int startLineX = 10;
 				int startLineY = 750;
@@ -1809,7 +1924,7 @@ public class Main extends JFrame
 				{
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLUE);
+					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineX, startLineY);
 					contents.showText(exportData.get(i));
 					contents.endText();
@@ -1822,7 +1937,7 @@ public class Main extends JFrame
 			
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page2))
 			{
-				PDImageXObject pdImage = PDImageXObject.createFromFile("C:/temp/hv2.png", doc);
+				PDImageXObject pdImage = PDImageXObject.createFromFile(f.getAbsolutePath(), doc);
 				contents.drawImage(pdImage, 200, 750);
 				int startLineX = 10;
 				int startLineY = 750;
@@ -1830,7 +1945,7 @@ public class Main extends JFrame
 				{
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLUE);
+					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineX, startLineY);
 					contents.showText(exportData2.get(i));
 					contents.endText();
