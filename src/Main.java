@@ -1722,9 +1722,6 @@ public class Main extends JFrame
 	            			start = 0;
 	            		}
 	            		
-	            		service = lines[counter].substring(start, lines[counter].length() - 4);
-	            		service = service.trim();
-	            		
 	            		CharSequence curSeq = D;
 	            		
 	                	if (lines[counter].contains(H))
@@ -1739,6 +1736,10 @@ public class Main extends JFrame
 	                	lines[counter] = lines[counter].replace(curSeq, "");	
 	                	lines[counter] = lines[counter].trim();
 	                	
+	            		
+	            		service = lines[counter].substring(start, lines[counter].length() - 4);
+	            		service = service.trim();
+	            		
 	            		String cost = lines[counter].substring(lines[counter].length() - 4, lines[counter].length());
 	            		cost = cost.trim();
 	        			
