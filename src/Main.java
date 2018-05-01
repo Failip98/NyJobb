@@ -1968,20 +1968,24 @@ public class Main extends JFrame
 		if (dtmOneServiceCost.getRowCount() > 0)
 		{
 			exportData2.add("EN SERVICE;");
+			/*//TODO
 			for (int i = 0; i < dtmOneServiceCost.getRowCount(); i++)
 			{
 				exportData2.add(SumRounder(dtmOneServiceCost.getValueAt(i, 0).toString()) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
 		if (dtmOneYourCost.getRowCount() > 0)
 		{
 			exportData2.add("EN ERA;");
+			/*//TODO
 			for (int i = 0; i < dtmOneYourCost.getRowCount(); i++)
 			{
 				exportData2.add(SumRounder(dtmOneYourCost.getValueAt(i, 0).toString()) + ";");
 			}
+			*/
 			exportData2.add("");
 		}
 		
