@@ -107,7 +107,7 @@ public class Main extends JFrame
 	static DefaultTableModel dtmMarieial = new DefaultTableModel(rowDataMatrial, columnNamesMatrial);
 	//Your Table
 	static Object rowDataYour[][] = {};
-	static String columnNamesYour[] = { "Era Kostnader", "Stälkostnad", "St Pris", "St","LO", "Affo", "Vinst", "Pris" };
+	static String columnNamesYour[] = { "Mina kostnader", "Stälkostnad", "St Pris", "St","LO", "Affo", "Vinst", "Pris" };
 	static DefaultTableModel dtmYour = new DefaultTableModel(rowDataYour, columnNamesYour);
 	//Service Tabel cost
 	static Object rowDataServiceCost[][] = {};
@@ -119,7 +119,7 @@ public class Main extends JFrame
 	static DefaultTableModel dtmMarieialCost = new DefaultTableModel(rowDataMatrialCost, columnNamesMatrialCost);
 	// Your Tabel cost
 	static Object rowDataYourCost[][] = {};
-	static String columnNamesYourCost[] = { "Era kostnader" };
+	static String columnNamesYourCost[] = { "Mina kostnader" };
 	static DefaultTableModel dtmYourCost = new DefaultTableModel(rowDataYourCost, columnNamesYourCost);
 	// Preptime Tabel 
 	static Object rowDataPrepTime[][] = {};
@@ -137,7 +137,7 @@ public class Main extends JFrame
 
 	// One YourCost Tabel 
 	static Object rowDataOneYourCost[][] = {};
-	static String columnNamesOneYourCost[] = { "En Era" };
+	static String columnNamesOneYourCost[] = { "En Mina" };
 	static DefaultTableModel dtmOneYourCost = new DefaultTableModel(rowDataOneYourCost, columnNamesOneYourCost);
 
 	//Textfelt
@@ -237,7 +237,7 @@ public class Main extends JFrame
 		AddEx();
 	}
 	
-	private void maintables() //Skapar huvudtabelerna Servic, Matrial och Era Kostnader
+	private void maintables() //Skapar huvudtabelerna Servic, Matrial och Mina kostnader
 	{
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -577,7 +577,7 @@ public class Main extends JFrame
 				AddToYourCost();
 			}
 		});
-		btnAddToYourCost.setBounds(99, 493, 89, 23);
+		btnAddToYourCost.setBounds(108, 493, 89, 23);
 		contentPane.add(btnAddToYourCost);
 
 		JButton btnDeliteMaterial = new JButton("Ta Bort");
@@ -603,7 +603,7 @@ public class Main extends JFrame
 				priseUppdate();
 			}
 		});
-		btnDeliteYourCost.setBounds(209, 493, 89, 23);
+		btnDeliteYourCost.setBounds(207, 493, 89, 23);
 		contentPane.add(btnDeliteYourCost);
 		
 		//Jonas-----
@@ -672,8 +672,8 @@ public class Main extends JFrame
 		lblUnitAmaunt.setBounds(1619, 811, 150, 14);
 		contentPane.add(lblUnitAmaunt);
 
-		JLabel lblNewYourCost = new JLabel("Era kostnader");
-		lblNewYourCost.setBounds(10, 493, 80, 14);
+		JLabel lblNewYourCost = new JLabel("Mina kostnader");
+		lblNewYourCost.setBounds(10, 493, 106, 14);
 		contentPane.add(lblNewYourCost);
 
 		JLabel lblMaterial = new JLabel("Matrial");
@@ -737,18 +737,18 @@ public class Main extends JFrame
 		contentPane.add(lblUnitAmuntDivided);
 		
 		JLabel lblPricelist = new JLabel("Offert");
-		lblPricelist.setBounds(1139, 45, 40, 14);
+		lblPricelist.setBounds(1139, 45, 52, 14);
 		contentPane.add(lblPricelist);
 		
 		
 		
 		textPrislista = new JTextField();
-		textPrislista.setBounds(1189, 8, 335, 20);
+		textPrislista.setBounds(1201, 8, 335, 20);
 		contentPane.add(textPrislista);
 		textPrislista.setColumns(10);
 		
 		JLabel lblPrislista = new JLabel("Prislista");
-		lblPrislista.setBounds(1139, 11, 46, 14);
+		lblPrislista.setBounds(1139, 11, 52, 14);
 		contentPane.add(lblPrislista);
 		
 		JLabel lblErlieroffer = new JLabel("Tidigare offert");
@@ -794,7 +794,7 @@ public class Main extends JFrame
 		textMo.setColumns(10);
 
 		textImport = new JTextField();
-		textImport.setBounds(1189, 42, 335, 20);
+		textImport.setBounds(1201, 42, 335, 20);
 		contentPane.add(textImport);
 		textImport.setColumns(10);
 
@@ -1380,7 +1380,7 @@ public class Main extends JFrame
 		dtmMarieialCost.addRow(newRowMaterialCostData);
 	}
 
-	private void AddToYourCost()// Läger till ny Era kostnader rad
+	private void AddToYourCost()// Läger till ny Mina kostnader rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
 		Object[] newRowYourData = { "Vad", startWalue, startWalue, unit ,overLo, overAffo,overVinst,startWalue};
@@ -1515,7 +1515,7 @@ public class Main extends JFrame
         				}
         				Matrialtable.setModel(dtmMarieial);
                 	}
-                	else if(checker.compareTo("ERA KOSTNADER") == 0)
+                	else if(checker.compareTo("Mina kostnader") == 0)
                 	{
                 		int numYourCosts = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
         				ArrayList<Object> temp;
@@ -1866,7 +1866,7 @@ public class Main extends JFrame
 		
 		if (dtmYour.getRowCount() > 0)
 		{
-			exportData.add("ERA KOSTNADER;");
+			exportData.add("Mina kostnader;");
 			exportData.add(Integer.toString(dtmYour.getRowCount()) + ";");
 			/*exportData.add(dtmYour.getColumnName(0) + ";   " +
 					dtmYour.getColumnName(1) + ";   " +
@@ -1924,7 +1924,7 @@ public class Main extends JFrame
 		
 		if (dtmYourCost.getRowCount() > 0)
 		{
-			exportData2.add("ERA TOTALA KOSTNADER;");
+			exportData2.add("Mina TOTALA KOSTNADER;");
 			exportData2.add(SumRounder(textYourTotalCost.getText()) + ";");
 			/*
 			for (int i = 0; i < dtmYourCost.getRowCount(); i++)
@@ -1979,7 +1979,7 @@ public class Main extends JFrame
 		
 		if (dtmOneYourCost.getRowCount() > 0)
 		{
-			exportData2.add("EN ERA;");
+			exportData2.add("EN Mina;");
 			/*//TODO
 			for (int i = 0; i < dtmOneYourCost.getRowCount(); i++)
 			{
