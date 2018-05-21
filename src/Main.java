@@ -39,6 +39,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.text.AbstractDocument.Content;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -177,6 +178,9 @@ public class Main extends JFrame
 	private JTextField textAmuntDivided;
 	private JTextField textPrislista;
 
+	int listslut;
+	
+	
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -240,6 +244,7 @@ public class Main extends JFrame
 	private void maintables() //Skapar huvudtabelerna Servic, Matrial och Mina kostnader
 	{
 		contentPane = new JPanel();
+		contentPane.setForeground(Color.BLACK);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -510,7 +515,8 @@ public class Main extends JFrame
 			{
 				//Jonas----------
 				try {
-					CreateSimplePDF();
+					//CreateSimplePDF();
+					CreateCostemerPDF();
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -2065,7 +2071,140 @@ public class Main extends JFrame
 	}
 	
 	//------------
-
+	
+	public void CreateCostemerPDF() throws Exception
+	{
+		FileDialog fc2 = new FileDialog(this, "Spara", FileDialog.SAVE);
+		fc2.setFile("*.pdf");
+		fc2.setVisible(true);
+		
+		String filename = fc2.getDirectory() + fc2.getFile();
+	
+		try (PDDocument doc = new PDDocument())
+		{
+			
+			PDPage page = new PDPage();
+			doc.addPage(page);
+		
+			PDFont font = PDType1Font.HELVETICA;
+			String[] mylist = {"Nr","Vad","Antal","A-pris","Belop"};
+			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
+			String[] post = {"Hej","på","dig","Test"};
+			String[] orderlist = {"1","2","3"};
+			
+			File f = new File("bin/hv2.png");
+			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
+			{
+				
+				PDImageXObject pdImage = PDImageXObject.createFromFile(f.getAbsolutePath(), doc);
+				contents.drawImage(pdImage, 200, 750);
+				contents.setStrokingColor(Color.black);
+				
+				int startLinshortBoxX = 375;
+				int startLineBoxlongX = 25;
+				
+				int startBoxY = 25;
+				
+				
+				contents.addRect(startLinshortBoxX, 680, 105, startBoxY);//Högger upp
+				contents.addRect(startLinshortBoxX, 705, 205, startBoxY);//Högger under 
+				//contents.addRect(startLineBoxlongX, 600, 555, startBoxY); //Mitt
+				contents.addRect(startLineBoxlongX, 550, 555, startBoxY);// Höger vad
+				
+				
+				
+				contents.addLine(5, 100, 600, 100);
+				contents.addRect(550, 30, 50, 50);// Höger bank giro
+				contents.stroke();
+				
+				
+				int startLineX = startLineBoxlongX + 5;
+				int startLineY = 555;
+				for (int i = 0; i < mylist.length; i++) // lsitans längd 
+				{
+					
+					contents.beginText();
+					
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineX, startLineY);
+					contents.showText(mylist[i]);
+					contents.endText();
+					
+					if(i == 1)
+					{
+						startLineX += 350;	
+					}
+					else
+					{
+						startLineX += 50;
+					}
+				}
+				
+				
+				int startLineX3 = startLineBoxlongX + 5;
+				int startLineY3 = 605;
+				for (int i = 0; i < post.length; i++) // lsitans längd 
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineX3, startLineY3);
+					contents.showText(post[i]);
+					contents.endText();
+					startLineX3 += 30;
+					contents.addRect(startLineBoxlongX, 600, 555, startBoxY); //Mitt
+					contents.stroke();
+				}
+				int startLineYMitt = 530;
+				for(int i = 0; i<orderlist.length; i++)
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineBoxlongX+5, startLineYMitt);
+					contents.showText(orderlist[i]);
+					String hej = Integer.toString(i);
+					contents.showText(hej);
+					String då = Integer.toString(orderlist.length);
+					contents.showText(då);
+					contents.endText();
+					startLineYMitt -= 20;
+					if(i+1 == orderlist.length)
+					{
+						listslut = startLineYMitt;
+						contents.beginText();
+						contents.setFont(font, 10);
+						contents.setNonStrokingColor(Color.RED);
+						String test = Integer.toString(listslut);
+						contents.showText(test);
+						contents.endText();
+						
+					}
+					
+					contents.stroke();
+				}
+				int startLineX2 = startLinshortBoxX + 5;
+				int startLineY2 = listslut-5;
+				contents.addRect(startLinshortBoxX, startLineY2-5, 205, startBoxY);//Högerpris
+				contents.stroke();
+				for (int i = 0; i < Totprislist.length; i++) // lsitans längd 
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineX2, startLineY2);
+					contents.showText(Totprislist[i]); // lägg till pris
+					contents.endText();
+					startLineX2 += 150;
+				}
+			}
+			
+				
+			doc.save(filename);
+		}
+	}
+	
 	static class DecimalFormatRenderer extends DefaultTableCellRenderer
 	{   
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
