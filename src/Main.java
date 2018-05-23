@@ -26,8 +26,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
@@ -179,7 +181,12 @@ public class Main extends JFrame
 	private JTextField textPrislista;
 
 	int listslut;
-	
+	private JTextField textField;
+	private String[] selersname = {"Filip","Simon","Nisse","Maja"};
+	private String[] company = {"Höganäs","Sandviken"};
+	private String[] textreader = {"Höganäs","Sandviken"};
+	private ArrayList<String> info = new ArrayList<String>();
+	private JTextField textField_Coments;
 	
 	public static void main(String[] args) 
 	{
@@ -224,6 +231,7 @@ public class Main extends JFrame
 		otherTabels();
 		buttons();
 		textfelds();
+		toreader();
 		label();
 		lisnerService();
 		lisnerMarial();
@@ -239,6 +247,7 @@ public class Main extends JFrame
 		setStartProcentWalue();
 		setDate();
 		AddEx();
+		offertreader();
 	}
 	
 	private void maintables() //Skapar huvudtabelerna Servic, Matrial och Mina kostnader
@@ -301,6 +310,7 @@ public class Main extends JFrame
 
 	private void Commboboxnr(JTable tabel)//Sakapar comboboxsarna i tabelen 
 	{
+		//TODO
 		//Jonas-----------
 		ArrayList<Object> Servicenr = new ArrayList<Object>();
 		
@@ -746,8 +756,6 @@ public class Main extends JFrame
 		lblPricelist.setBounds(1139, 45, 52, 14);
 		contentPane.add(lblPricelist);
 		
-		
-		
 		textPrislista = new JTextField();
 		textPrislista.setBounds(1201, 8, 335, 20);
 		contentPane.add(textPrislista);
@@ -760,8 +768,61 @@ public class Main extends JFrame
 		JLabel lblErlieroffer = new JLabel("Tidigare offert");
 		lblErlieroffer.setBounds(1359, 11, 80, 14);
 		contentPane.add(lblErlieroffer);
+		
+		
+		
+		
+		
+		
 	}
 
+	private void toreader()
+	//TODO
+	{
+		JLabel lblVrReferens = new JLabel("V\u00E5r Referens");
+		lblVrReferens.setBounds(990, 774, 100, 14);
+		contentPane.add(lblVrReferens);
+		
+		JComboBox vorrefcomboBox = new JComboBox();
+		vorrefcomboBox.setBounds(990, 794, 100, 20);
+		for(int i = 0; i< selersname.length; i++)
+		{
+			vorrefcomboBox.addItem(selersname[i]);	
+		}
+	
+		contentPane.add(vorrefcomboBox);
+		
+		textField = new JTextField();
+		textField.setBounds(1105, 849, 100, 20);
+		contentPane.add(textField);
+		textField.setColumns(10);
+		
+		JLabel lblKundsReferens = new JLabel("Kunds Referens");
+		lblKundsReferens.setBounds(1105, 825, 100, 14);
+		contentPane.add(lblKundsReferens);
+		
+		JComboBox kundrefcomboBox = new JComboBox();
+		kundrefcomboBox.setBounds(990, 849, 100, 20);
+		for(int i = 0; i< company.length; i++)
+		{
+			kundrefcomboBox.addItem(company[i]);	
+		}
+		contentPane.add(kundrefcomboBox);
+		
+		JLabel lblVljKund = new JLabel("V\u00E4lj kund");
+		lblVljKund.setBounds(990, 825, 100, 14);
+		contentPane.add(lblVljKund);
+		
+		JLabel labelComents = new JLabel("Fri text p\u00E5 offerten");
+		labelComents.setBounds(1218, 774, 150, 14);
+		contentPane.add(labelComents);
+		
+		textField_Coments = new JTextField();
+		textField_Coments.setBounds(1218, 794, 247, 160);
+		contentPane.add(textField_Coments);
+		textField_Coments.setColumns(10);
+	}
+	
 	private void textfelds() //Skapar alla textfelt
 	{
 		textFieldDatum = new JTextField();
@@ -1975,7 +2036,6 @@ public class Main extends JFrame
 		{
 			exportData2.add("EN SERVICE;");
 			exportData2.add(SumRounder(textOneServiceCost.getText()) + ";");
-			//TODO
 			/*
 			for (int i = 0; i < dtmOneServiceCost.getRowCount(); i++)
 			{
@@ -1990,7 +2050,6 @@ public class Main extends JFrame
 		{
 			exportData2.add("EN Mina;");
 			exportData2.add(SumRounder(textOneYourCost.getText()) + ";");
-			//TODO
 			/*
 			for (int i = 0; i < dtmOneYourCost.getRowCount(); i++)
 			{
@@ -2072,6 +2131,33 @@ public class Main extends JFrame
 	
 	//------------
 	
+	public void offertreader()
+	{
+		File f = new File("lister/NordkalkAB.txt");
+		//TODO
+		String thisLine;
+		//for (int i=0; i < args.length; i++) 
+		
+		
+			try 
+			{
+				BufferedReader br = new BufferedReader(new FileReader(f));
+				while ((thisLine = br.readLine()) != null) 
+				{ 
+					info.add(thisLine); 
+				}  
+		} 
+			catch (IOException e) 
+			{
+				System.err.println("Error: " + e);
+			}
+		
+			  
+		
+
+			
+	}
+	
 	public void CreateCostemerPDF() throws Exception
 	{
 		FileDialog fc2 = new FileDialog(this, "Spara", FileDialog.SAVE);
@@ -2087,10 +2173,13 @@ public class Main extends JFrame
 			doc.addPage(page);
 		
 			PDFont font = PDType1Font.HELVETICA;
-			String[] mylist = {"Nr","Vad","Antal","A-pris","Belop"};
+			PDFont fontbold = PDType1Font.HELVETICA_BOLD;
+			String[] mylist = {"Nr","Benämning","Antal","A-pris %","Belopp"};//klar
 			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
-			String[] post = {"Hej","på","dig","Test"};
-			String[] orderlist = {"1","2","3"};
+			String[] post = {"Hej","på","dig","Test"}; // ändra 
+			//String[] orderlist = {info}; // ändra
+			String[] offertnr = {"OffertNummer","1234/5"};// skystera 1234/5 till skriv själv???
+			String[] betleverans = {"1","2","3","1","2","3","1","2","3","1","2","3"};// skystera 1234/5 till skriv själv???
 			
 			File f = new File("bin/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
@@ -2106,28 +2195,79 @@ public class Main extends JFrame
 				int startBoxY = 25;
 				
 				
-				contents.addRect(startLinshortBoxX, 680, 105, startBoxY);//Högger upp
-				contents.addRect(startLinshortBoxX, 705, 205, startBoxY);//Högger under 
-				//contents.addRect(startLineBoxlongX, 600, 555, startBoxY); //Mitt
-				contents.addRect(startLineBoxlongX, 550, 555, startBoxY);// Höger vad
-				
-				
-				
-				contents.addLine(5, 100, 600, 100);
-				contents.addRect(550, 30, 50, 50);// Höger bank giro
-				contents.stroke();
-				
+				contents.addRect(startLinshortBoxX, 705, 205, startBoxY);//Högger uppe
+				contents.beginText();
+				contents.setFont(fontbold, 25);
+				contents.setNonStrokingColor(Color.BLACK);
+				contents.newLineAtOffset(startLinshortBoxX, 705+2);
+				contents.showText("Offert");
+				contents.endText();
+				 
+				contents.addRect(startLinshortBoxX, 680, 105, startBoxY);//Högger under
+				int startLineOffertY = 680+12;
+				for (int i = 0; i < offertnr.length; i++) // lsitans längd 
+				{
+					contents.beginText();
+					contents.setFont(fontbold, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLinshortBoxX, startLineOffertY);
+					contents.showText(offertnr[i]);
+					startLineOffertY -= 10;
+					contents.endText();
+					
+				}
+				contents.addRect(startLineBoxlongX, 600, 555, startBoxY*3); //Kunds uppgifter
+				int startLineX3 = startLineBoxlongX + 5;
+				int startLineY3 = 665;
+				for (int i = 0; i < post.length; i++) // Leverans och poest adräs
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineX3, startLineY3);
+					contents.showText(post[i]);
+					contents.endText();
+					startLineY3 -=12;
+					if (i == 1)
+					{
+						startLineX3 += 100;
+						startLineY3 = 665;
+					}
+					contents.stroke();
+				}
+				int startLineleveransX = 25;
+				int startLineleveransY = 590;
+				for(int i = 0; i< betleverans.length;i++)
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineleveransX, startLineleveransY);
+					contents.showText(betleverans[i]);
+					contents.endText();
+					startLineleveransY -=12;
+					if (i == 5)
+					{
+						startLineleveransX += 100;
+						startLineleveransY = 590;
+					}
+					if(i+1 == betleverans.length )
+					{
+						listslut = startLineleveransY;
+					}
+					contents.stroke();
+				}
 				
 				int startLineX = startLineBoxlongX + 5;
-				int startLineY = 555;
+				int startLineY = listslut-20;
+				contents.addRect(startLineBoxlongX, startLineY, 555, startBoxY);// vad
 				for (int i = 0; i < mylist.length; i++) // lsitans längd 
 				{
 					
 					contents.beginText();
-					
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLineX, startLineY);
+					contents.setNonStrokingColor(Color.GREEN);
+					contents.newLineAtOffset(startLineX, startLineY+2);
 					contents.showText(mylist[i]);
 					contents.endText();
 					
@@ -2139,38 +2279,26 @@ public class Main extends JFrame
 					{
 						startLineX += 50;
 					}
+					if(i+1 == mylist.length)
+					{
+						startLineY = listslut;
+					}
 				}
 				
 				
-				int startLineX3 = startLineBoxlongX + 5;
-				int startLineY3 = 605;
-				for (int i = 0; i < post.length; i++) // lsitans längd 
-				{
-					contents.beginText();
-					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLineX3, startLineY3);
-					contents.showText(post[i]);
-					contents.endText();
-					startLineX3 += 30;
-					contents.addRect(startLineBoxlongX, 600, 555, startBoxY); //Mitt
-					contents.stroke();
-				}
-				int startLineYMitt = 530;
-				for(int i = 0; i<orderlist.length; i++)
+				
+			
+				int startLineYMitt = listslut-35;
+				for(int i = 0; i<info.size(); i++)
 				{
 					contents.beginText();
 					contents.setFont(font, 10);
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineBoxlongX+5, startLineYMitt);
-					contents.showText(orderlist[i]);
-					String hej = Integer.toString(i);
-					contents.showText(hej);
-					String då = Integer.toString(orderlist.length);
-					contents.showText(då);
+					contents.showText(info.get(i));
 					contents.endText();
-					startLineYMitt -= 20;
-					if(i+1 == orderlist.length)
+					startLineYMitt -= 12;
+					if(i+1 == info.size())
 					{
 						listslut = startLineYMitt;
 						contents.beginText();
@@ -2185,19 +2313,24 @@ public class Main extends JFrame
 					contents.stroke();
 				}
 				int startLineX2 = startLinshortBoxX + 5;
-				int startLineY2 = listslut-5;
-				contents.addRect(startLinshortBoxX, startLineY2-5, 205, startBoxY);//Högerpris
+				int startLineY2 = listslut-25;
+				contents.addRect(startLinshortBoxX, startLineY2, 205, startBoxY);//Högerpris
 				contents.stroke();
 				for (int i = 0; i < Totprislist.length; i++) // lsitans längd 
 				{
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLineX2, startLineY2);
+					contents.setNonStrokingColor(Color.RED);
+					contents.newLineAtOffset(startLineX2, startLineY2+2);
 					contents.showText(Totprislist[i]); // lägg till pris
 					contents.endText();
 					startLineX2 += 150;
 				}
+
+				
+				contents.addLine(5, 100, 600, 100);
+				contents.addRect(550, 30, 50, 50);// Höger bank giro
+				contents.stroke();
 			}
 			
 				
