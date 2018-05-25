@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
+import java.awt.TextArea;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -32,6 +33,7 @@ import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -59,6 +61,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.util.NumberFormatUtil;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import java.awt.TextField;
 
 public class Main extends JFrame 
 {
@@ -182,12 +185,12 @@ public class Main extends JFrame
 
 	int listslut;
 	private JTextField textField;
+	private TextArea textArea;
 	private String[] selersname = {"Filip","Simon","Nisse","Maja"};
 	private String[] company = {"Höganäs","Sandviken"};
 	private String[] textreader = {"Höganäs","Sandviken"};
 	private ArrayList<String> info = new ArrayList<String>();
-	private JTextField textField_Coments;
-	
+	private int offside = 1000000000;
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -772,8 +775,6 @@ public class Main extends JFrame
 		
 		
 		
-		
-		
 	}
 
 	private void toreader()
@@ -817,10 +818,9 @@ public class Main extends JFrame
 		labelComents.setBounds(1218, 774, 150, 14);
 		contentPane.add(labelComents);
 		
-		textField_Coments = new JTextField();
-		textField_Coments.setBounds(1218, 794, 247, 160);
-		contentPane.add(textField_Coments);
-		textField_Coments.setColumns(10);
+		textArea = new TextArea();
+		textArea.setBounds(1215, 794, 299, 164);
+		contentPane.add(textArea);
 	}
 	
 	private void textfelds() //Skapar alla textfelt
@@ -2174,12 +2174,9 @@ public class Main extends JFrame
 		
 			PDFont font = PDType1Font.HELVETICA;
 			PDFont fontbold = PDType1Font.HELVETICA_BOLD;
-			String[] mylist = {"Nr","Benämning","Antal","A-pris %","Belopp"};//klar
+			String[] mylist = {"Nr","Benämning","Pris per timme","Antal","Ställtid","Oprationstid","Belopp"};//klar
 			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
-			String[] post = {"Hej","på","dig","Test"}; // ändra 
-			//String[] orderlist = {info}; // ändra
-			String[] offertnr = {"OffertNummer","1234/5"};// skystera 1234/5 till skriv själv???
-			String[] betleverans = {"1","2","3","1","2","3","1","2","3","1","2","3"};// skystera 1234/5 till skriv själv???
+			String[] offertnr = {"OffertNummer","XXXX/X"};
 			
 			File f = new File("bin/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
@@ -2216,102 +2213,187 @@ public class Main extends JFrame
 					contents.endText();
 					
 				}
+				
+				int startRowCostemer = info.indexOf("Kund nummer start")+2;
+				int endRowCostemer = info.indexOf("Kund nummer slut")-1;
+				
+				
+				int startLineCostemerX = startLineBoxlongX + 5;
+				int startLineCostemerY = 735;
+				for (int i = startRowCostemer; i<endRowCostemer; i++) 
+				{
+					
+					if (info.get(i).compareTo("Ert momsreg.nr") == 0)
+					{
+						startLineCostemerX = 30;
+						startLineCostemerY = 735;
+					}
+					if (info.get(i).compareTo("Förfrågansnr") == 0)
+					{
+						startLineCostemerX = 200;
+						startLineCostemerY = 735;
+					}
+					if (info.get(i).compareTo("Kundkod") == 0)
+					{
+						startLineCostemerX = 300;
+						startLineCostemerY = 735;
+					}
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineCostemerX, startLineCostemerY);
+					contents.showText(info.get(i));
+					contents.endText();
+					startLineCostemerY -=12;
+					contents.stroke();
+				}
+				
+				int startRowMotagare = info.indexOf("Motagare start")+2;
+				int endRowMotagare = info.indexOf("Motagare slut")-1;
+				
 				contents.addRect(startLineBoxlongX, 600, 555, startBoxY*3); //Kunds uppgifter
 				int startLineX3 = startLineBoxlongX + 5;
 				int startLineY3 = 665;
-				for (int i = 0; i < post.length; i++) // Leverans och poest adräs
+				for (int i = startRowMotagare; i<endRowMotagare; i++) // Leverans och poest adräs
 				{
+					
+					if (info.get(i).compareTo("Leveransadress") == 0)
+					{
+						startLineX3 = 30;
+						startLineY3 = 665;
+					}
+					if (info.get(i).compareTo("Postadress") == 0)
+					{
+						startLineX3 = 200;
+						startLineY3 = 665;
+					}
 					contents.beginText();
 					contents.setFont(font, 10);
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineX3, startLineY3);
-					contents.showText(post[i]);
+					contents.showText(info.get(i));
 					contents.endText();
 					startLineY3 -=12;
-					if (i == 1)
-					{
-						startLineX3 += 100;
-						startLineY3 = 665;
-					}
-					contents.stroke();
-				}
-				int startLineleveransX = 25;
-				int startLineleveransY = 590;
-				for(int i = 0; i< betleverans.length;i++)
-				{
-					contents.beginText();
-					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLineleveransX, startLineleveransY);
-					contents.showText(betleverans[i]);
-					contents.endText();
-					startLineleveransY -=12;
-					if (i == 5)
-					{
-						startLineleveransX += 100;
-						startLineleveransY = 590;
-					}
-					if(i+1 == betleverans.length )
-					{
-						listslut = startLineleveransY;
-					}
 					contents.stroke();
 				}
 				
-				int startLineX = startLineBoxlongX + 5;
-				int startLineY = listslut-20;
-				contents.addRect(startLineBoxlongX, startLineY, 555, startBoxY);// vad
-				for (int i = 0; i < mylist.length; i++) // lsitans längd 
+				
+				int startRowLeverans = info.indexOf("Leverans info start")+2;
+				int endRowLeverans = info.indexOf("Leverans info slut")-1;
+				int startLineleveransX = 30;
+				int startLineleveransY = 590;
+				for(int i = startRowLeverans; i<endRowLeverans; i++)
 				{
+					if(info.get(i).compareTo("Leveransvillkor") == 0) 
+					{
+						startLineleveransX = 30;
+						startLineleveransY = 590;
+					}
+					if(info.get(i).compareTo("Betalningsvillkor") == 0)
+					{
+						startLineleveransX = 250;
+						startLineleveransY = 590;
+					}
 					
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.GREEN);
-					contents.newLineAtOffset(startLineX, startLineY+2);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineleveransX, startLineleveransY+2);
+					contents.showText(info.get(i));
+					contents.endText();
+					startLineleveransY -=12;
+					contents.stroke();
+				}
+				
+				
+				int[] startWhatValues = new int[7];
+				startWhatValues[0] = startLineBoxlongX+5;
+				startWhatValues[1] = startLineBoxlongX+25;
+				startWhatValues[2] = startLineBoxlongX+300;
+				startWhatValues[3] = startLineBoxlongX+370;
+				startWhatValues[4] = startLineBoxlongX+400;
+				startWhatValues[5] = startLineBoxlongX+440;
+				startWhatValues[6] = startLineBoxlongX+510;
+				
+				int startLineY = 480;
+				contents.addRect(startLineBoxlongX, startLineY, 555, startBoxY);// vad
+				for (int i = 0; i < mylist.length; i++) // lsitans längd 
+				{	
+					
+					
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.black);
+					contents.newLineAtOffset(startWhatValues[i], startLineY+2);					
 					contents.showText(mylist[i]);
 					contents.endText();
 					
-					if(i == 1)
-					{
-						startLineX += 350;	
-					}
-					else
-					{
-						startLineX += 50;
-					}
-					if(i+1 == mylist.length)
-					{
-						startLineY = listslut;
-					}
 				}
 				
 				
+				int o = servicetabel.getRowCount() + Matrialtable.getRowCount() + Yourtable.getRowCount();
+				System.out.println(o);
+				int startLineservicetabelY = 450;
 				
-			
-				int startLineYMitt = listslut-35;
-				for(int i = 0; i<info.size(); i++)
+				int[] startValues = new int[7];
+				startValues[0] = startLineBoxlongX+5;
+				startValues[1] = startLineBoxlongX+25;
+				startValues[2] = startLineBoxlongX+300;
+				startValues[3] = startLineBoxlongX+370;
+				startValues[4] = startLineBoxlongX+400;
+				startValues[5] = startLineBoxlongX+440;
+				startValues[6] = startLineBoxlongX+510;
+				
+				for(int i = 0; i<servicetabel.getRowCount(); i++)
 				{
-					contents.beginText();
-					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLineBoxlongX+5, startLineYMitt);
-					contents.showText(info.get(i));
-					contents.endText();
-					startLineYMitt -= 12;
-					if(i+1 == info.size())
+					
+					for (int j = 0; j < servicetabel.getColumnCount(); j++)
 					{
-						listslut = startLineYMitt;
 						contents.beginText();
 						contents.setFont(font, 10);
-						contents.setNonStrokingColor(Color.RED);
-						String test = Integer.toString(listslut);
-						contents.showText(test);
+						contents.setNonStrokingColor(Color.BLACK);
+						contents.newLineAtOffset(startValues[j], startLineservicetabelY);
+						contents.showText(servicetabel.getModel().getValueAt(i, j).toString());
 						contents.endText();
-						
 					}
 					
-					contents.stroke();
+					startLineservicetabelY -= 12;
+					
 				}
+				listslut = startLineservicetabelY;
+				contents.stroke();	
+				
+				int startLineserviceMatrialtableY = listslut-12;
+				int[] startValuesMatrialtable = new int[7];
+				startValuesMatrialtable[0] = startLineBoxlongX+25;
+				startValuesMatrialtable[1] = offside;
+				startValuesMatrialtable[2] = offside;
+				startValuesMatrialtable[3] = offside;
+				startValuesMatrialtable[4] = offside;
+				startValuesMatrialtable[5] = offside;
+				startValuesMatrialtable[6] = startLineBoxlongX+510;
+				
+				for(int i = 0; i<Matrialtable.getRowCount(); i++)
+				{
+					
+					for (int j = 0; j < Matrialtable.getColumnCount(); j++)
+					{
+						contents.beginText();
+						contents.setFont(font, 10);
+						contents.setNonStrokingColor(Color.BLACK);
+						contents.newLineAtOffset(startValuesMatrialtable[j], startLineserviceMatrialtableY);
+						contents.showText(Matrialtable.getModel().getValueAt(i, j).toString());
+						contents.endText();
+					}
+					
+					startLineserviceMatrialtableY -= 12;
+					
+				}
+				listslut = startLineserviceMatrialtableY;
+				contents.stroke();	
+				
+				
+				
 				int startLineX2 = startLinshortBoxX + 5;
 				int startLineY2 = listslut-25;
 				contents.addRect(startLinshortBoxX, startLineY2, 205, startBoxY);//Högerpris
@@ -2320,16 +2402,75 @@ public class Main extends JFrame
 				{
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.RED);
+					contents.setNonStrokingColor(Color.orange);
 					contents.newLineAtOffset(startLineX2, startLineY2+2);
 					contents.showText(Totprislist[i]); // lägg till pris
 					contents.endText();
 					startLineX2 += 150;
+					if(i+1 == Totprislist.length)
+					{
+						listslut = startLineY2;
+						
+					}
 				}
 
+				int startLinetextX = startLinshortBoxX + 5;
+				int startLinetextY = listslut-25;
+				for (int i = 0; i < textArea.getColumns(); i++) // lsitans längd 
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.pink);
+					contents.newLineAtOffset(startLinetextX, startLinetextY+2);
+					String texa = textArea.getText();
+					contents.showText(texa); 
+					contents.endText();
+					startLineX2 += 150;
+				}
+				
+				int startRowHoganas = info.indexOf("Höganäs info start")+2;
+				int endRowHoganas = info.indexOf("Höganäs info slut")-1;
 				
 				contents.addLine(5, 100, 600, 100);
-				contents.addRect(550, 30, 50, 50);// Höger bank giro
+				int startLinehpX = startLineBoxlongX+5;
+				int startLinehpY = 95;
+				for(int i = startRowHoganas; i<endRowHoganas; i++)
+				{
+					
+					if(info.get(i).compareTo("Postadress") == 0)
+					{
+						startLinehpX = 5;
+						startLinehpY = 90;
+						
+					}
+					if(info.get(i).compareTo("Besöksadress") == 0)
+					{
+						startLinehpX = 150;
+						startLinehpY = 90;
+					}
+					if(info.get(i).compareTo("Telefon 042-338200") == 0) // ombytar stämmer inte 
+					{
+						startLinehpX = 300;
+						startLinehpY = 90;
+					}
+					if(info.get(i).compareTo("Bankkontonr") == 0)
+					{
+						startLinehpX = 450;
+						startLinehpY = 90;
+					}
+					
+					contents.beginText();
+					contents.setFont(font, 8);
+					contents.setNonStrokingColor(Color.BLUE);
+					contents.newLineAtOffset(startLinehpX+5, startLinehpY);
+					contents.showText(info.get(i));
+					
+					contents.endText();
+					startLinehpY -= 12;
+						
+					contents.stroke();
+				}
+				
 				contents.stroke();
 			}
 			
