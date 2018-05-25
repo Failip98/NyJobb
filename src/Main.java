@@ -191,6 +191,7 @@ public class Main extends JFrame
 	private String[] textreader = {"Höganäs","Sandviken"};
 	private ArrayList<String> info = new ArrayList<String>();
 	private int offside = 1000000000;
+	private JComboBox vorrefcomboBox;
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -784,7 +785,7 @@ public class Main extends JFrame
 		lblVrReferens.setBounds(990, 774, 100, 14);
 		contentPane.add(lblVrReferens);
 		
-		JComboBox vorrefcomboBox = new JComboBox();
+		vorrefcomboBox = new JComboBox();
 		vorrefcomboBox.setBounds(990, 794, 100, 20);
 		for(int i = 0; i< selersname.length; i++)
 		{
@@ -2172,18 +2173,21 @@ public class Main extends JFrame
 			PDPage page = new PDPage();
 			doc.addPage(page);
 		
+			//TODO alla tecken stöds ej
 			PDFont font = PDType1Font.HELVETICA;
+			//PDFont font = PDType1Font.TIMES_ROMAN;
 			PDFont fontbold = PDType1Font.HELVETICA_BOLD;
 			String[] mylist = {"Nr","Benämning","Pris per timme","Antal","Ställtid","Oprationstid","Belopp"};//klar
 			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
 			String[] offertnr = {"OffertNummer","XXXX/X"};
+			String[] sellers = {vorrefcomboBox.getSelectedItem().toString(),textField.getText(),textDate.getText()};
 			
 			File f = new File("bin/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
 			{
 				
 				PDImageXObject pdImage = PDImageXObject.createFromFile(f.getAbsolutePath(), doc);
-				contents.drawImage(pdImage, 200, 750);
+				contents.drawImage(pdImage, 50, 750);
 				contents.setStrokingColor(Color.black);
 				
 				int startLinshortBoxX = 375;
@@ -2192,7 +2196,7 @@ public class Main extends JFrame
 				int startBoxY = 25;
 				
 				
-				contents.addRect(startLinshortBoxX, 705, 205, startBoxY);//Högger uppe
+				contents.addRect(startLinshortBoxX, 750, 205, startBoxY);//Högger uppe
 				contents.beginText();
 				contents.setFont(fontbold, 25);
 				contents.setNonStrokingColor(Color.BLACK);
@@ -2200,7 +2204,7 @@ public class Main extends JFrame
 				contents.showText("Offert");
 				contents.endText();
 				 
-				contents.addRect(startLinshortBoxX, 680, 105, startBoxY);//Högger under
+				contents.addRect(startLinshortBoxX, 705, 105, startBoxY);//Högger under
 				int startLineOffertY = 680+12;
 				for (int i = 0; i < offertnr.length; i++) // lsitans längd 
 				{
@@ -2247,6 +2251,25 @@ public class Main extends JFrame
 					startLineCostemerY -=12;
 					contents.stroke();
 				}
+				
+				int startLineSellerX = startLineBoxlongX + 5;
+				int startLineSellerY = 690;
+				for (int i = 0; i < sellers.length; i++) 
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineSellerX, startLineSellerY);
+					contents.showText(sellers[i]);
+					contents.endText();
+					startLineSellerX +=100;
+					contents.stroke();
+					
+				}
+			
+				
+				
+				
 				
 				int startRowMotagare = info.indexOf("Motagare start")+2;
 				int endRowMotagare = info.indexOf("Motagare slut")-1;
@@ -2309,10 +2332,10 @@ public class Main extends JFrame
 				int[] startWhatValues = new int[7];
 				startWhatValues[0] = startLineBoxlongX+5;
 				startWhatValues[1] = startLineBoxlongX+25;
-				startWhatValues[2] = startLineBoxlongX+300;
+				startWhatValues[2] = offside;
 				startWhatValues[3] = startLineBoxlongX+370;
-				startWhatValues[4] = startLineBoxlongX+400;
-				startWhatValues[5] = startLineBoxlongX+440;
+				startWhatValues[4] = offside;
+				startWhatValues[5] = offside;
 				startWhatValues[6] = startLineBoxlongX+510;
 				
 				int startLineY = 480;
@@ -2323,7 +2346,7 @@ public class Main extends JFrame
 					
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.black);
+					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startWhatValues[i], startLineY+2);					
 					contents.showText(mylist[i]);
 					contents.endText();
@@ -2331,17 +2354,16 @@ public class Main extends JFrame
 				}
 				
 				
-				int o = servicetabel.getRowCount() + Matrialtable.getRowCount() + Yourtable.getRowCount();
-				System.out.println(o);
-				int startLineservicetabelY = 450;
+				
+				int startLineservicetabelY = 465;
 				
 				int[] startValues = new int[7];
 				startValues[0] = startLineBoxlongX+5;
 				startValues[1] = startLineBoxlongX+25;
-				startValues[2] = startLineBoxlongX+300;
-				startValues[3] = startLineBoxlongX+370;
-				startValues[4] = startLineBoxlongX+400;
-				startValues[5] = startLineBoxlongX+440;
+				startValues[2] = offside;
+				startValues[3] = offside;
+				startValues[4] = offside;
+				startValues[5] = offside;
 				startValues[6] = startLineBoxlongX+510;
 				
 				for(int i = 0; i<servicetabel.getRowCount(); i++)
@@ -2363,7 +2385,7 @@ public class Main extends JFrame
 				listslut = startLineservicetabelY;
 				contents.stroke();	
 				
-				int startLineserviceMatrialtableY = listslut-12;
+				int startLineserviceMatrialtableY = listslut;
 				int[] startValuesMatrialtable = new int[7];
 				startValuesMatrialtable[0] = startLineBoxlongX+25;
 				startValuesMatrialtable[1] = offside;
@@ -2392,6 +2414,37 @@ public class Main extends JFrame
 				listslut = startLineserviceMatrialtableY;
 				contents.stroke();	
 				
+				int startLineserviceYourtableY = listslut;
+				int[] startValuesYourtable = new int[8];
+				startValuesYourtable[0] = startLineBoxlongX+25;
+				startValuesYourtable[1] = offside;
+				startValuesYourtable[2] = offside;
+				startValuesYourtable[3] = offside;
+				startValuesYourtable[4] = offside;
+				startValuesYourtable[5] = offside;
+				startValuesYourtable[6] = offside;
+				startValuesYourtable[7] = startLineBoxlongX+510;
+				
+				for(int i = 0; i<Yourtable.getRowCount(); i++)
+				{
+					
+					for (int j = 0; j < Yourtable.getColumnCount(); j++)
+					{
+						contents.beginText();
+						contents.setFont(font, 10);
+						contents.setNonStrokingColor(Color.BLACK);
+						contents.newLineAtOffset(startValuesYourtable[j], startLineserviceYourtableY);
+						contents.showText(Yourtable.getModel().getValueAt(i, j).toString());
+						contents.endText();
+					}
+					
+					startLineserviceYourtableY -= 12;
+					
+				}
+				listslut = startLineserviceYourtableY;
+				contents.stroke();	
+				
+				
 				
 				
 				int startLineX2 = startLinshortBoxX + 5;
@@ -2400,39 +2453,69 @@ public class Main extends JFrame
 				contents.stroke();
 				for (int i = 0; i < Totprislist.length; i++) // lsitans längd 
 				{
+					
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.orange);
+					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineX2, startLineY2+2);
 					contents.showText(Totprislist[i]); // lägg till pris
 					contents.endText();
-					startLineX2 += 150;
-					if(i+1 == Totprislist.length)
-					{
-						listslut = startLineY2;
-						
-					}
+					startLineX2 += 120;
 				}
+				
+					
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineX2-100, startLineY2+2);
+					contents.showText(textTotalAmount.getText());
+					contents.endText();
+					listslut = startLineY2;
 
 				int startLinetextX = startLinshortBoxX + 5;
 				int startLinetextY = listslut-25;
-				for (int i = 0; i < textArea.getColumns(); i++) // lsitans längd 
+				String texa = textArea.getText();
+				String[] texarows = texa.split("\\r?\\n");
+				
+				for (int i = 0; i < texarows.length; i++)
 				{
+					System.out.println("Rad " + i + ": " + texarows[i]);
 					contents.beginText();
 					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.pink);
+					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLinetextX, startLinetextY+2);
-					String texa = textArea.getText();
-					contents.showText(texa); 
+					startLinetextY -= 12;
+					contents.showText(texarows[i]);
 					contents.endText();
-					startLineX2 += 150;
+				}
+				
+				
+				
+				
+				int startRowWarning = info.indexOf("Varning start")+2;
+				int endRowWarning = info.indexOf("Varning slut")-1;
+				
+				contents.addLine(5, 100, 600, 100);
+				int startLineWarningX = 5;
+				int startLineWarningY = 130;
+				for(int i = startRowWarning; i<endRowWarning; i++)
+				{
+					
+					contents.beginText();
+					contents.setFont(font, 8);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineWarningX, startLineWarningY);
+					contents.showText(info.get(i));
+					
+					contents.endText();
+					startLineWarningY -= 12;
 				}
 				
 				int startRowHoganas = info.indexOf("Höganäs info start")+2;
 				int endRowHoganas = info.indexOf("Höganäs info slut")-1;
 				
 				contents.addLine(5, 100, 600, 100);
-				int startLinehpX = startLineBoxlongX+5;
+				int startLinehpX = 5;
 				int startLinehpY = 95;
 				for(int i = startRowHoganas; i<endRowHoganas; i++)
 				{
@@ -2461,14 +2544,13 @@ public class Main extends JFrame
 					
 					contents.beginText();
 					contents.setFont(font, 8);
-					contents.setNonStrokingColor(Color.BLUE);
+					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLinehpX+5, startLinehpY);
 					contents.showText(info.get(i));
 					
 					contents.endText();
 					startLinehpY -= 12;
 						
-					contents.stroke();
 				}
 				
 				contents.stroke();
