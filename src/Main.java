@@ -44,6 +44,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.AbstractDocument.Content;
+import javax.swing.text.html.parser.ContentModel;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -2190,22 +2191,22 @@ public class Main extends JFrame
 				contents.drawImage(pdImage, 50, 750);
 				contents.setStrokingColor(Color.black);
 				
-				int startLinshortBoxX = 375;
+				int startLinshortBoxX = 365;
 				int startLineBoxlongX = 25;
 				
 				int startBoxY = 25;
 				
 				
-				contents.addRect(startLinshortBoxX, 750, 205, startBoxY);//Högger uppe
+				contents.addRect(startLinshortBoxX, 750, 215, startBoxY);//Högger uppe
 				contents.beginText();
 				contents.setFont(fontbold, 25);
 				contents.setNonStrokingColor(Color.BLACK);
-				contents.newLineAtOffset(startLinshortBoxX, 705+2);
+				contents.newLineAtOffset(startLinshortBoxX, 750);
 				contents.showText("Offert");
 				contents.endText();
 				 
-				contents.addRect(startLinshortBoxX, 705, 105, startBoxY);//Högger under
-				int startLineOffertY = 680+12;
+				contents.addRect(startLinshortBoxX, 725, 105, startBoxY);//Högger under
+				int startLineOffertY = 725+12;
 				for (int i = 0; i < offertnr.length; i++) // lsitans längd 
 				{
 					contents.beginText();
@@ -2230,17 +2231,17 @@ public class Main extends JFrame
 					if (info.get(i).compareTo("Ert momsreg.nr") == 0)
 					{
 						startLineCostemerX = 30;
-						startLineCostemerY = 735;
+						startLineCostemerY = 695;
 					}
 					if (info.get(i).compareTo("Förfrågansnr") == 0)
 					{
-						startLineCostemerX = 200;
-						startLineCostemerY = 735;
+						startLineCostemerX = 180;
+						startLineCostemerY = 680;
 					}
 					if (info.get(i).compareTo("Kundkod") == 0)
 					{
-						startLineCostemerX = 300;
-						startLineCostemerY = 735;
+						startLineCostemerX = 475;
+						startLineCostemerY = 740;
 					}
 					contents.beginText();
 					contents.setFont(font, 10);
@@ -2252,21 +2253,16 @@ public class Main extends JFrame
 					contents.stroke();
 				}
 				
-				int startLineSellerX = startLineBoxlongX + 5;
-				int startLineSellerY = 690;
-				for (int i = 0; i < sellers.length; i++) 
-				{
-					contents.beginText();
-					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLineSellerX, startLineSellerY);
-					contents.showText(sellers[i]);
-					contents.endText();
-					startLineSellerX +=100;
-					contents.stroke();
-					
-				}
-			
+				
+				
+				String pp =vorrefcomboBox.getSelectedItem().toString();
+				print(contents,font , pp ,475, 700);
+				String ww
+				print(contents,font , ww ,475, 700);
+				
+				
+				
+				
 				
 				
 				
@@ -2283,12 +2279,12 @@ public class Main extends JFrame
 					if (info.get(i).compareTo("Leveransadress") == 0)
 					{
 						startLineX3 = 30;
-						startLineY3 = 665;
+						startLineY3 = 660;
 					}
 					if (info.get(i).compareTo("Postadress") == 0)
 					{
 						startLineX3 = 200;
-						startLineY3 = 665;
+						startLineY3 = 660;
 					}
 					contents.beginText();
 					contents.setFont(font, 10);
@@ -2310,12 +2306,12 @@ public class Main extends JFrame
 					if(info.get(i).compareTo("Leveransvillkor") == 0) 
 					{
 						startLineleveransX = 30;
-						startLineleveransY = 590;
+						startLineleveransY = 580;
 					}
 					if(info.get(i).compareTo("Betalningsvillkor") == 0)
 					{
 						startLineleveransX = 250;
-						startLineleveransY = 590;
+						startLineleveransY = 580;
 					}
 					
 					contents.beginText();
@@ -2449,7 +2445,7 @@ public class Main extends JFrame
 				
 				int startLineX2 = startLinshortBoxX + 5;
 				int startLineY2 = listslut-25;
-				contents.addRect(startLinshortBoxX, startLineY2, 205, startBoxY);//Högerpris
+				contents.addRect(startLinshortBoxX, startLineY2, 215, startBoxY);//Högerpris
 				contents.stroke();
 				for (int i = 0; i < Totprislist.length; i++) // lsitans längd 
 				{
@@ -2553,14 +2549,31 @@ public class Main extends JFrame
 						
 				}
 				
+				
 				contents.stroke();
 			}
 			
 				
 			doc.save(filename);
 		}
+		
+		
 	}
 	
+	
+	
+	private void print(PDPageContentStream contents, PDFont font, String string, int x, int y) throws IOException {
+		contents.beginText();
+		contents.setFont(font, 10);
+		contents.setNonStrokingColor(Color.BLACK);
+		contents.newLineAtOffset(x, y);
+		contents.showText(string);
+		contents.endText();
+		
+	}
+
+
+
 	static class DecimalFormatRenderer extends DefaultTableCellRenderer
 	{   
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
