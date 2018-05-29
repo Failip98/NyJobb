@@ -773,7 +773,7 @@ public class Main extends JFrame
 		lblUnitAmuntDivided.setBounds(1516, 764, 247, 26);
 		contentPane.add(lblUnitAmuntDivided);
 		
-		JLabel lblPricelist = new JLabel("Offert");
+		JLabel lblPricelist = new JLabel("Data file");
 		lblPricelist.setBounds(1139, 45, 52, 14);
 		contentPane.add(lblPricelist);
 		
@@ -808,7 +808,7 @@ public class Main extends JFrame
 		contentPane.add(vorrefcomboBox);
 		
 		textField = new JTextField();
-		textField.setBounds(958, 928, 100, 20);
+		textField.setBounds(958, 928, 217, 20);
 		contentPane.add(textField);
 		textField.setColumns(10);
 		
@@ -822,6 +822,14 @@ public class Main extends JFrame
 		{
 			kundrefcomboBox.addItem(company.get(i));	
 		}
+		kundrefcomboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String i = kundrefcomboBox.getSelectedItem().toString();
+				textCostemerName.setText(i);//services.get(i).data_.toArray()[0]
+				//System.out.println(i);
+				
+			}
+		});
 		contentPane.add(kundrefcomboBox);
 		
 		JLabel lblVljKund = new JLabel("V\u00E4lj kund");
@@ -1711,10 +1719,10 @@ public class Main extends JFrame
                 		kundrefcomboBox.setSelectedItem(kund);
                 		counter++;
                 	}
-                	else if(checker.compareTo("KUND") == 0)
+                	else if(checker.compareTo("KUNDREF") == 0)
                 	{
-                		String kund = lines[counter].replaceAll("^\\s+", "");
-                		textField.setText(kund);
+                		String kundref = lines[counter].replaceAll("^\\s+", "");
+                		textField.setText(kundref);
                 		counter++;
                 	}
                 	else if(checker.compareTo("EGENTEXT") == 0)
@@ -2141,7 +2149,7 @@ public class Main extends JFrame
 		exportData2.add(kundrefcomboBox.getSelectedItem() + ";");
 		exportData2.add("");
 		
-		exportData2.add("KUND;");
+		exportData2.add("KUNDREF;");
 		exportData2.add(textField.getText() + ";");
 		exportData2.add("");
 		
@@ -2156,7 +2164,7 @@ public class Main extends JFrame
 		{
 			
 			exportData3.add(texarows[i] + ";");
-			System.out.println("Rad " + i + "; " + texarows[i]);
+			//System.out.println("Rad " + i + "; " + texarows[i]);
 		}
 		exportData3.add("");
 		
@@ -2482,7 +2490,7 @@ public class Main extends JFrame
 					
 					
 					contents.beginText();
-					contents.setFont(font, 10);
+					contents.setFont(font, 8);
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startWhatValues[i], startLineY+2);					
 					contents.showText(mylist[i]);
@@ -2509,14 +2517,14 @@ public class Main extends JFrame
 					for (int j = 0; j < servicetabel.getColumnCount(); j++)
 					{
 						contents.beginText();
-						contents.setFont(font, 10);
+						contents.setFont(font, 8);
 						contents.setNonStrokingColor(Color.BLACK);
 						contents.newLineAtOffset(startValues[j], startLineservicetabelY);
 						contents.showText(servicetabel.getModel().getValueAt(i, j).toString());
 						contents.endText();
 					}
 					
-					startLineservicetabelY -= 12;
+					startLineservicetabelY -= 10;
 					
 				}
 				listslut = startLineservicetabelY;
@@ -2538,14 +2546,14 @@ public class Main extends JFrame
 					for (int j = 0; j < Matrialtable.getColumnCount(); j++)
 					{
 						contents.beginText();
-						contents.setFont(font, 10);
+						contents.setFont(font, 8);
 						contents.setNonStrokingColor(Color.BLACK);
 						contents.newLineAtOffset(startValuesMatrialtable[j], startLineserviceMatrialtableY);
 						contents.showText(Matrialtable.getModel().getValueAt(i, j).toString());
 						contents.endText();
 					}
 					
-					startLineserviceMatrialtableY -= 12;
+					startLineserviceMatrialtableY -= 10;
 					
 				}
 				listslut = startLineserviceMatrialtableY;
@@ -2568,14 +2576,14 @@ public class Main extends JFrame
 					for (int j = 0; j < Yourtable.getColumnCount(); j++)
 					{
 						contents.beginText();
-						contents.setFont(font, 10);
+						contents.setFont(font, 8);
 						contents.setNonStrokingColor(Color.BLACK);
 						contents.newLineAtOffset(startValuesYourtable[j], startLineserviceYourtableY);
 						contents.showText(Yourtable.getModel().getValueAt(i, j).toString());
 						contents.endText();
 					}
 					
-					startLineserviceYourtableY -= 12;
+					startLineserviceYourtableY -= 10;
 					
 				}
 				listslut = startLineserviceYourtableY;
@@ -2629,7 +2637,7 @@ public class Main extends JFrame
 					{
 						for (int i = 0; i < texarows.length; i++)
 						{
-							System.out.println("Rad " + i + ": " + texarows[i]);
+							//System.out.println("Rad " + i + ": " + texarows[i]);
 							contents.beginText();
 							contents.setFont(font, 10);
 							contents.setNonStrokingColor(Color.BLACK);
@@ -2798,7 +2806,7 @@ public class Main extends JFrame
 				
 				for (int i = 0; i < texarows.length; i++)
 				{
-					System.out.println("Rad " + i + ": " + texarows[i]);
+					//System.out.println("Rad " + i + ": " + texarows[i]);
 					contents.beginText();
 					contents.setFont(font, 10);
 					contents.setNonStrokingColor(Color.BLACK);
