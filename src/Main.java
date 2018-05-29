@@ -99,6 +99,7 @@ public class Main extends JFrame
 	
 	//JONAS---
 	final FileDialog fc = new FileDialog(this, "Öppna", FileDialog.LOAD);
+	final FileDialog fc2 = new FileDialog(this, "Spara", FileDialog.SAVE);
 	
 	ArrayList<Service> services = new ArrayList<>();
 	//--------
@@ -187,12 +188,12 @@ public class Main extends JFrame
 	int listslut;
 	private JTextField textField;
 	private TextArea textArea;
-	private String[] selersname = {"Filip","Simon","Nisse","Maja"};
-	private String[] company = {"Höganäs","Sandviken"};
-	private String[] textreader = {"Höganäs","Sandviken"};
+	private ArrayList<String> company = new ArrayList<String>();
 	private ArrayList<String> info = new ArrayList<String>();
+	private ArrayList<String> sellerlist = new ArrayList<String>();
 	private int offside = 1000000000;
 	private JComboBox vorrefcomboBox;
+	private JComboBox kundrefcomboBox;
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -228,7 +229,12 @@ public class Main extends JFrame
 		fc.setTitle("Importera fil (PDF-fil)");
 		fc.setDirectory(null);
 		//--------
-
+		
+		//read alla customer filenames
+		ReadAllCustomerFilenames("data\\Kunder");
+		if (company.size() > 0)
+			offertreader(company.get(0));
+		selsreader();
 		maintables();
 		panelMaterial();
 		panelServiceLists();
@@ -252,7 +258,7 @@ public class Main extends JFrame
 		setStartProcentWalue();
 		setDate();
 		AddEx();
-		offertreader();
+		
 	}
 	
 	private void maintables() //Skapar huvudtabelerna Servic, Matrial och Mina kostnader
@@ -491,7 +497,9 @@ public class Main extends JFrame
 
 	private void buttons() //Skapar alla knappar
 	{
-		JButton btnImport = new JButton("Importera befintlig offert");
+		
+		
+		JButton btnImport = new JButton("Importera befintlig Datafile");
 		btnImport.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e) 
@@ -520,25 +528,33 @@ public class Main extends JFrame
 				
 			}
 		});
-		btnImport.setBounds(951, 41, 178, 23);
+		btnImport.setBounds(919, 41, 210, 23);
 		contentPane.add(btnImport);
 
-		JButton btnSave = new JButton("Spara");
+		JButton btnSave = new JButton("Spara Offert");
 		btnSave.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e) 
 			{
 				//Jonas----------
 				try {
-					//CreateSimplePDF();
-					CreateCostemerPDF();
+					
+					fc2.setFile("*.pdf");
+					fc2.setVisible(true);
+					
+					String filename = fc2.getDirectory() + fc2.getFile();
+					String filename2 = fc2.getDirectory() + "DATAFIL TILL - " + fc2.getFile();
+					
+					CreateCostemerPDF(filename);
+					CreateSimplePDF(filename2);
+					
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 				//--------------
 			}
 		});
-		btnSave.setBounds(1787, 931, 89, 23);
+		btnSave.setBounds(1733, 927, 140, 23);
 		contentPane.add(btnSave);
 
 		JButton btnAddService = new JButton("L\u00E4ggtill");
@@ -653,7 +669,7 @@ public class Main extends JFrame
 				}
 			}
 		});
-		btnImporteraPrislista.setBounds(951, 7, 178, 23);
+		btnImporteraPrislista.setBounds(919, 7, 210, 23);
 		contentPane.add(btnImporteraPrislista);
 		
 	}
@@ -783,37 +799,33 @@ public class Main extends JFrame
 	//TODO
 	{
 		JLabel lblVrReferens = new JLabel("V\u00E5r Referens");
-		lblVrReferens.setBounds(990, 774, 100, 14);
+		lblVrReferens.setBounds(958, 770, 100, 14);
 		contentPane.add(lblVrReferens);
 		
-		vorrefcomboBox = new JComboBox();
-		vorrefcomboBox.setBounds(990, 794, 100, 20);
-		for(int i = 0; i< selersname.length; i++)
-		{
-			vorrefcomboBox.addItem(selersname[i]);	
-		}
-	
+		vorrefcomboBox = new JComboBox(sellerlist.toArray());//
+		vorrefcomboBox.setBounds(958, 794, 226, 20);
+		
 		contentPane.add(vorrefcomboBox);
 		
 		textField = new JTextField();
-		textField.setBounds(1105, 849, 100, 20);
+		textField.setBounds(958, 928, 100, 20);
 		contentPane.add(textField);
 		textField.setColumns(10);
 		
 		JLabel lblKundsReferens = new JLabel("Kunds Referens");
-		lblKundsReferens.setBounds(1105, 825, 100, 14);
+		lblKundsReferens.setBounds(958, 893, 128, 14);
 		contentPane.add(lblKundsReferens);
 		
-		JComboBox kundrefcomboBox = new JComboBox();
-		kundrefcomboBox.setBounds(990, 849, 100, 20);
-		for(int i = 0; i< company.length; i++)
+		kundrefcomboBox = new JComboBox();
+		kundrefcomboBox.setBounds(956, 849, 235, 20);
+		for(int i = 0; i< company.size(); i++)
 		{
-			kundrefcomboBox.addItem(company[i]);	
+			kundrefcomboBox.addItem(company.get(i));	
 		}
 		contentPane.add(kundrefcomboBox);
 		
 		JLabel lblVljKund = new JLabel("V\u00E4lj kund");
-		lblVljKund.setBounds(990, 825, 100, 14);
+		lblVljKund.setBounds(958, 825, 100, 14);
 		contentPane.add(lblVljKund);
 		
 		JLabel labelComents = new JLabel("Fri text p\u00E5 offerten");
@@ -1680,6 +1692,47 @@ public class Main extends JFrame
                 		textVinst.setText(vinst);
                 		counter++;
                 	}
+                	//TODO lägg till nya felt + frakt
+                	else if(checker.compareTo("FRAKT") == 0)
+                	{
+                		String frakt = lines[counter].replaceAll("^\\s+", "");
+                		textShippingCost.setText(frakt);
+                		counter++;
+                	}
+                	else if(checker.compareTo("VARAREF") == 0)
+                	{
+                		String voraref = lines[counter].replaceAll("^\\s+", "");
+                		vorrefcomboBox.setSelectedItem(voraref);
+                		counter++;
+                	}
+                	else if(checker.compareTo("VALJKUND") == 0)
+                	{
+                		String kund = lines[counter].replaceAll("^\\s+", "");
+                		kundrefcomboBox.setSelectedItem(kund);
+                		counter++;
+                	}
+                	else if(checker.compareTo("KUND") == 0)
+                	{
+                		String kund = lines[counter].replaceAll("^\\s+", "");
+                		textField.setText(kund);
+                		counter++;
+                	}
+                	else if(checker.compareTo("EGENTEXT") == 0)
+                	{
+                		int numrows = Integer.parseInt(lines[counter].replaceAll("^\\s+", ""));
+        				counter++;
+                	
+                		for (int i = 0; i < numrows-1 ; i++)
+        				{
+                		String fritext = lines[counter].replaceAll("^\\s+", "");
+                		textArea.setText(textArea.getText()+fritext+"\n");
+        				
+                		counter++;
+        				}
+                		String fritext = lines[counter].replaceAll("^\\s+", "");
+                		textArea.setText(textArea.getText()+fritext);
+                		counter++;
+                	}
                 }
             }
         }
@@ -1830,13 +1883,9 @@ public class Main extends JFrame
 		}
 	}
 	
-	public void CreateSimplePDF() throws Exception
+	public void CreateSimplePDF(String filename) throws Exception
 	{
-		FileDialog fc2 = new FileDialog(this, "Spara", FileDialog.SAVE);
-		fc2.setFile("*.pdf");
-		fc2.setVisible(true);
 		
-		String filename = fc2.getDirectory() + fc2.getFile();
 		//System.out.println("FILNAMN: " + filename);
 		
 		//filename = "C:/temp/simplePDF.pdf";
@@ -2066,17 +2115,50 @@ public class Main extends JFrame
 		exportData2.add(textShippingCost.getText() + ";");
 		exportData2.add("");
 		
-		exportData2.add("STYCKSUMMA VID FLERA BESTÄLLDA");
+		exportData2.add("STYCKSUMMA VID FLERA BESTÄLLDA;");
 		exportData2.add(textAmuntDivided.getText() + ";");
 		exportData2.add("");
 		
-		exportData2.add("STYCKSUMMA ");
+		exportData2.add("STYCKSUMMA;");
 		exportData2.add(textUnitAmaunt.getText() + ";");
 		exportData2.add("");
 		
-		exportData2.add("TOTALKOSTNAD");
+		exportData2.add("TOTALKOSTNAD;");
 		exportData2.add(textTotalAmount.getText() + ";");
 		exportData2.add("");
+		
+		//TODO spara ny a felt
+		
+		exportData2.add("FRAKT;");
+		exportData2.add(textShippingCost.getText() + ";");
+		exportData2.add("");
+		
+		exportData2.add("VARAREF;");
+		exportData2.add(vorrefcomboBox.getSelectedItem() + ";");
+		exportData2.add("");
+		
+		exportData2.add("VALJKUND;");
+		exportData2.add(kundrefcomboBox.getSelectedItem() + ";");
+		exportData2.add("");
+		
+		exportData2.add("KUND;");
+		exportData2.add(textField.getText() + ";");
+		exportData2.add("");
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		ArrayList<String> exportData3 = new ArrayList<String>();
+		exportData3.add("EGENTEXT;");
+		String texa = textArea.getText();
+		String[] texarows = texa.split("\\r?\\n");
+		exportData3.add(texarows.length + ";");
+		for (int i = 0; i < texarows.length; i++)
+		{
+			
+			exportData3.add(texarows[i] + ";");
+			System.out.println("Rad " + i + "; " + texarows[i]);
+		}
+		exportData3.add("");
 		
 		try (PDDocument doc = new PDDocument())
 		{
@@ -2126,6 +2208,27 @@ public class Main extends JFrame
 					startLineY -= 12;
 				}
 			}
+			
+			PDPage page3 = new PDPage();
+			doc.addPage(page3);
+			
+			try (PDPageContentStream contents = new PDPageContentStream(doc, page3))
+			{
+				PDImageXObject pdImage = PDImageXObject.createFromFile(f.getAbsolutePath(), doc);
+				contents.drawImage(pdImage, 200, 750);
+				int startLineX = 10;
+				int startLineY = 750;
+				for (int i = 0; i < exportData3.size(); i++)
+				{
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLineX, startLineY);
+					contents.showText(exportData3.get(i));
+					contents.endText();
+					startLineY -= 12;
+				}
+			}
            
 			doc.save(filename);
 		}
@@ -2133,41 +2236,61 @@ public class Main extends JFrame
 	
 	//------------
 	
-	public void offertreader()
+	public void ReadAllCustomerFilenames(String filepath)
 	{
-		File f = new File("lister/NordkalkAB.txt");
-		//TODO
-		String thisLine;
-		//for (int i=0; i < args.length; i++) 
-		
-		
-			try 
-			{
-				BufferedReader br = new BufferedReader(new FileReader(f));
-				while ((thisLine = br.readLine()) != null) 
-				{ 
-					info.add(thisLine); 
-				}  
-		} 
-			catch (IOException e) 
-			{
-				System.err.println("Error: " + e);
-			}
-		
-			  
-		
+		File folder = new File(filepath);
+		File[] listOfFiles = folder.listFiles();
 
-			
+		for (File file : listOfFiles) {
+		    if (file.isFile()) {
+		    	String fn = file.getName();
+		    	
+		    	company.add(fn.substring(0, fn.length() - 4));
+		    }
+		}
 	}
 	
-	public void CreateCostemerPDF() throws Exception
+	public void offertreader(String filename)
 	{
-		FileDialog fc2 = new FileDialog(this, "Spara", FileDialog.SAVE);
-		fc2.setFile("*.pdf");
-		fc2.setVisible(true);
-		
-		String filename = fc2.getDirectory() + fc2.getFile();
+		File f = new File("data/Kunder/"+ filename + ".txt");
+		//TODO
+		String thisLine;
+		try 
+		{
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			while ((thisLine = br.readLine()) != null) 
+			{ 
+				info.add(thisLine); 
+			}  
+		} 
+		catch (IOException e) 
+		{
+			System.err.println("Error: " + e);
+		}
+	}
 	
+	public void selsreader()
+	{
+		File f = new File("data/Säljare.txt");
+		//TODO
+		String thisLine;
+		try 
+		{
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			while ((thisLine = br.readLine()) != null) 
+			{ 
+
+				sellerlist.add(thisLine); 
+			}  
+		} 
+		catch (IOException e) 
+		{
+			System.err.println("Error: " + e);
+		}
+	}
+	
+	public void CreateCostemerPDF(String filename) throws Exception
+	{	
 		try (PDDocument doc = new PDDocument())
 		{
 			
@@ -2175,14 +2298,15 @@ public class Main extends JFrame
 			doc.addPage(page);
 		
 			//TODO alla tecken stöds ej
-			PDFont font = PDType1Font.HELVETICA;
-			//PDFont font = PDType1Font.TIMES_ROMAN;
+			PDFont font = PDType1Font.HELVETICA; 
 			PDFont fontbold = PDType1Font.HELVETICA_BOLD;
 			String[] mylist = {"Nr","Benämning","Pris per timme","Antal","Ställtid","Oprationstid","Belopp"};//klar
 			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
 			String[] offertnr = {"OffertNummer","XXXX/X"};
 			String[] sellers = {vorrefcomboBox.getSelectedItem().toString(),textField.getText(),textDate.getText()};
-			
+			int side = 1 ; 
+			int temp;
+			boolean secondpage = false;
 			File f = new File("bin/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
 			{
@@ -2236,7 +2360,7 @@ public class Main extends JFrame
 					if (info.get(i).compareTo("Förfrågansnr") == 0)
 					{
 						startLineCostemerX = 180;
-						startLineCostemerY = 680;
+						startLineCostemerY = 695;
 					}
 					if (info.get(i).compareTo("Kundkod") == 0)
 					{
@@ -2255,10 +2379,27 @@ public class Main extends JFrame
 				
 				
 				
-				String pp =vorrefcomboBox.getSelectedItem().toString();
-				print(contents,font , pp ,475, 700);
-				String ww
-				print(contents,font , ww ,475, 700);
+				String od = "Offertdatum";
+				print(contents,font , od ,365, 716);
+				String odt = textDate.getText().toString();
+				print(contents,font , odt ,365, 704);
+				
+				String vr = "Vår referens";
+				print(contents,font , vr ,365, 692);
+				String vrc = vorrefcomboBox.getSelectedItem().toString();
+				print(contents,font , vrc ,365, 680);
+				
+				
+				String od2 = "Offert utskriftdatum";
+				print(contents,font , od2 ,475, 716);
+				String odt2 = textFieldDatum.getText().toString();
+				print(contents,font , odt2 ,475, 704);
+				
+				
+				String er = "Er referens";
+				print(contents,font , er ,475, 692);
+				String ert = textField.getText().toString();
+				print(contents,font , ert ,475, 680);
 				
 				
 				
@@ -2283,7 +2424,7 @@ public class Main extends JFrame
 					}
 					if (info.get(i).compareTo("Postadress") == 0)
 					{
-						startLineX3 = 200;
+						startLineX3 = 365;
 						startLineY3 = 660;
 					}
 					contents.beginText();
@@ -2310,7 +2451,7 @@ public class Main extends JFrame
 					}
 					if(info.get(i).compareTo("Betalningsvillkor") == 0)
 					{
-						startLineleveransX = 250;
+						startLineleveransX = 365;
 						startLineleveransY = 580;
 					}
 					
@@ -2470,35 +2611,60 @@ public class Main extends JFrame
 
 				int startLinetextX = startLinshortBoxX + 5;
 				int startLinetextY = listslut-25;
-				String texa = textArea.getText();
-				String[] texarows = texa.split("\\r?\\n");
+				temp = startLinetextY;
+				int writearea = startLinetextY;
 				
-				for (int i = 0; i < texarows.length; i++)
-				{
-					System.out.println("Rad " + i + ": " + texarows[i]);
-					contents.beginText();
-					contents.setFont(font, 10);
-					contents.setNonStrokingColor(Color.BLACK);
-					contents.newLineAtOffset(startLinetextX, startLinetextY+2);
-					startLinetextY -= 12;
-					contents.showText(texarows[i]);
-					contents.endText();
-				}
+					
+					String texa = textArea.getText();
+					String[] texarows = texa.split("\\r?\\n");
+					for (int i = 0; i < texarows.length; i++)
+					{
+						startLinetextY -= 12;
+					}
+					if(temp< 200 || startLinetextY <200)
+					{
+						secondpage = true;
+					}
+					else
+					{
+						for (int i = 0; i < texarows.length; i++)
+						{
+							System.out.println("Rad " + i + ": " + texarows[i]);
+							contents.beginText();
+							contents.setFont(font, 10);
+							contents.setNonStrokingColor(Color.BLACK);
+							contents.newLineAtOffset(startLinetextX, writearea+2);
+							writearea -= 12;
+							contents.showText(texarows[i]);
+							contents.endText();
+						}
+					}
+					
 				
 				
+				
+				
+				String med1 = "Med vänliga hälsningar"; 
+				print(contents,font , med1 ,30, 142);
+				String med2 = "Höganäs Verkstad AB"; 
+				print(contents,font , med2 ,30, 130);
+				
+				
+				print(contents,font , vr ,30, 118);
+				print(contents,font , vrc ,30, 106);
 				
 				
 				int startRowWarning = info.indexOf("Varning start")+2;
 				int endRowWarning = info.indexOf("Varning slut")-1;
 				
 				contents.addLine(5, 100, 600, 100);
-				int startLineWarningX = 5;
-				int startLineWarningY = 130;
+				int startLineWarningX = 250;
+				int startLineWarningY = 142;
 				for(int i = startRowWarning; i<endRowWarning; i++)
 				{
 					
 					contents.beginText();
-					contents.setFont(font, 8);
+					contents.setFont(font, 10);
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineWarningX, startLineWarningY);
 					contents.showText(info.get(i));
@@ -2543,18 +2709,39 @@ public class Main extends JFrame
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLinehpX+5, startLinehpY);
 					contents.showText(info.get(i));
-					
 					contents.endText();
 					startLinehpY -= 12;
+					
+					if (secondpage ==true )
+					{
+						side = 2;
+						String sid = "1/"+side;
+						print(contents,font, sid ,525, 740);
+					}
+					else
+					{
+					String sid = "1/"+side;
+					print(contents,font, sid ,525, 740);
+					}
 						
+					
 				}
 				
 				
 				contents.stroke();
 			}
 			
-				
-			doc.save(filename);
+			if(secondpage ==true ) ///////////////////////////////////////////////////////////////////////////////////////////////
+			{
+				printpage2(filename, doc, offertnr, font, fontbold, side);
+			
+			}
+			else
+			{
+				doc.save(filename);
+			}
+			
+			
 		}
 		
 		
@@ -2562,6 +2749,74 @@ public class Main extends JFrame
 	
 	
 	
+	private void printpage2(String filename, PDDocument doc, String[] offertnr, PDFont font, PDFont fontbold, int side) throws IOException 
+	{
+		// TODO Auto-generated method stub
+		
+		
+		PDPage page2 = new PDPage();
+			doc.addPage(page2);
+			File f = new File("bin/hv2.png");
+			try (PDPageContentStream contents = new PDPageContentStream(doc, page2))
+			{
+				int startLinshortBoxX = 365;
+				
+				int startBoxY = 25;
+				
+				int startLinetextX = 30;
+				side = 2;
+				String sid = side+"/"+side;
+				print(contents,font, sid ,525, 740);
+				
+				PDImageXObject pdImage = PDImageXObject.createFromFile(f.getAbsolutePath(), doc);
+				contents.drawImage(pdImage, 50, 750);
+				contents.setStrokingColor(Color.black);
+				
+				contents.addRect(startLinshortBoxX, 750, 215, startBoxY);//Högger uppe
+				contents.beginText();
+				contents.setFont(fontbold, 25);
+				contents.setNonStrokingColor(Color.BLACK);
+				contents.newLineAtOffset(startLinshortBoxX, 750);
+				contents.showText("Offert");
+				contents.endText();
+				 
+				contents.addRect(startLinshortBoxX, 725, 105, startBoxY);//Högger under
+				int startLineOffertY = 725+12;
+				for (int i = 0; i < offertnr.length; i++) // lsitans längd 
+				{
+					contents.beginText();
+					contents.setFont(fontbold, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLinshortBoxX, startLineOffertY);
+					contents.showText(offertnr[i]);
+					startLineOffertY -= 10;
+					contents.endText();
+					
+				}
+				String texa = textArea.getText();
+				String[] texarows = texa.split("\\r?\\n");
+				
+				for (int i = 0; i < texarows.length; i++)
+				{
+					System.out.println("Rad " + i + ": " + texarows[i]);
+					contents.beginText();
+					contents.setFont(font, 10);
+					contents.setNonStrokingColor(Color.BLACK);
+					contents.newLineAtOffset(startLinetextX, startLineOffertY+2);
+					startLineOffertY -= 12;
+					contents.showText(texarows[i]);
+					contents.endText();
+				}
+				
+				
+			
+			}
+			doc.save(filename);
+	}
+	
+		
+	
+
 	private void print(PDPageContentStream contents, PDFont font, String string, int x, int y) throws IOException {
 		contents.beginText();
 		contents.setFont(font, 10);
@@ -2572,6 +2827,15 @@ public class Main extends JFrame
 		
 	}
 
+	private void printbold(PDPageContentStream contents, PDFont fontbold, String string, int x, int y) throws IOException {
+		contents.beginText();
+		contents.setFont(fontbold, 10);
+		contents.setNonStrokingColor(Color.BLACK);
+		contents.newLineAtOffset(x, y);
+		contents.showText(string);
+		contents.endText();
+		
+	}
 
 
 	static class DecimalFormatRenderer extends DefaultTableCellRenderer

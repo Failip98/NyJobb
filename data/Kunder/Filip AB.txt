@@ -1,4 +1,4 @@
-Nordkalk AB
+Filip AB
 
 Kund nummer start
 
@@ -18,11 +18,13 @@ Motagare start
 Leveransadress
 Nordkalk AB
 Box 901
-731 29 Köping
+
+731 29 Polen
 
 Postadress
-Nordkalk AB
-Box 901
+Filip AB
+Box 901
+
 731 29 Köping
 
 Motagare slut
@@ -52,7 +54,6 @@ Med reservation för mellanförsäljning och betydande materialprisökningar
 Certifierade enligt EN1090-1 och lSO3B34-2
 
 Varning slut
-
 
 Höganäs info start
 
