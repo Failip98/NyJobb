@@ -342,7 +342,12 @@ public class Main extends JFrame
 				if (tabel.getSelectedRow() > -1)
 				{
 					dtmService.setValueAt(services.get(i).data_.toArray()[1], tabel.getSelectedRow(), 1);
-					dtmService.setValueAt(services.get(i).data_.toArray()[2], tabel.getSelectedRow(), 2);
+					String value = services.get(i).data_.toArray()[2].toString();
+					
+					value = value.replaceAll(",", ".");
+					
+					dtmService.setValueAt(value, tabel.getSelectedRow(), 2); 
+					
 				}
 			}
 		});
@@ -368,7 +373,14 @@ public class Main extends JFrame
 			public void actionPerformed(ActionEvent e) {
 				int i = Serice.getSelectedIndex();
 				dtmService.setValueAt(services.get(i).data_.toArray()[0], tabel.getSelectedRow(), 0);
-				dtmService.setValueAt(services.get(i).data_.toArray()[2], tabel.getSelectedRow(), 2);
+				
+				String value = services.get(i).data_.toArray()[2].toString();
+				
+				value = value.replaceAll(",", ".");
+				
+				dtmService.setValueAt(value, tabel.getSelectedRow(), 2); 
+				
+				
 			}
 		});
 		//------------
@@ -1281,7 +1293,7 @@ public class Main extends JFrame
 		}	
 	}
 
-	private String SumRounder(String input)
+	private String SumRounder(String input) //Omvandlar suman frå . till , och så den har två desemaler när visas
 	{
 		NumberFormat nf = NumberFormat.getInstance();
 		
@@ -2308,7 +2320,6 @@ public class Main extends JFrame
 			//TODO alla tecken stöds ej
 			PDFont font = PDType1Font.HELVETICA; 
 			PDFont fontbold = PDType1Font.HELVETICA_BOLD;
-			String[] mylist = {"Nr","Benämning","Pris per timme","Antal","Ställtid","Oprationstid","Belopp"};//klar
 			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
 			String[] offertnr = {"OffertNummer","XXXX/X"};
 			String[] sellers = {vorrefcomboBox.getSelectedItem().toString(),textField.getText(),textDate.getText()};
@@ -2473,15 +2484,15 @@ public class Main extends JFrame
 					contents.stroke();
 				}
 				
-				
+				String[] mylist = {"Nr","Benämning","Pris per timme","Antal","A-pris %","Oprationstid","Belopp"};
 				int[] startWhatValues = new int[7];
 				startWhatValues[0] = startLineBoxlongX+5;
 				startWhatValues[1] = startLineBoxlongX+25;
 				startWhatValues[2] = offside;
 				startWhatValues[3] = startLineBoxlongX+370;
-				startWhatValues[4] = offside;
+				startWhatValues[4] = startLineBoxlongX+400;
 				startWhatValues[5] = offside;
-				startWhatValues[6] = startLineBoxlongX+510;
+				startWhatValues[6] = startLineBoxlongX+490;
 				
 				int startLineY = 480;
 				contents.addRect(startLineBoxlongX, startLineY, 555, startBoxY);// vad
@@ -2506,10 +2517,10 @@ public class Main extends JFrame
 				startValues[0] = startLineBoxlongX+5;
 				startValues[1] = startLineBoxlongX+25;
 				startValues[2] = offside;
-				startValues[3] = offside;
-				startValues[4] = offside;
+				startValues[3] = startLineBoxlongX+370;
+				startValues[4] = startLineBoxlongX+400; // pris för en 
 				startValues[5] = offside;
-				startValues[6] = startLineBoxlongX+510;
+				startValues[6] = startLineBoxlongX+490;
 				
 				for(int i = 0; i<servicetabel.getRowCount(); i++)
 				{
@@ -2520,7 +2531,16 @@ public class Main extends JFrame
 						contents.setFont(font, 8);
 						contents.setNonStrokingColor(Color.BLACK);
 						contents.newLineAtOffset(startValues[j], startLineservicetabelY);
-						contents.showText(servicetabel.getModel().getValueAt(i, j).toString());
+						
+						String data = servicetabel.getModel().getValueAt(i, j).toString();
+						if (j == 6)
+						{
+							data = SumRounder(data);
+						}
+						
+						contents.showText(data);
+						
+						
 						contents.endText();
 					}
 					
@@ -2534,11 +2554,11 @@ public class Main extends JFrame
 				int[] startValuesMatrialtable = new int[7];
 				startValuesMatrialtable[0] = startLineBoxlongX+25;
 				startValuesMatrialtable[1] = offside;
-				startValuesMatrialtable[2] = offside;
+				startValuesMatrialtable[2] = startLineBoxlongX+370;
 				startValuesMatrialtable[3] = offside;
-				startValuesMatrialtable[4] = offside;
+				startValuesMatrialtable[4] = startLineBoxlongX+400;
 				startValuesMatrialtable[5] = offside;
-				startValuesMatrialtable[6] = startLineBoxlongX+510;
+				startValuesMatrialtable[6] = startLineBoxlongX+490;
 				
 				for(int i = 0; i<Matrialtable.getRowCount(); i++)
 				{
@@ -2549,7 +2569,15 @@ public class Main extends JFrame
 						contents.setFont(font, 8);
 						contents.setNonStrokingColor(Color.BLACK);
 						contents.newLineAtOffset(startValuesMatrialtable[j], startLineserviceMatrialtableY);
-						contents.showText(Matrialtable.getModel().getValueAt(i, j).toString());
+						
+						String data = Matrialtable.getModel().getValueAt(i, j).toString();
+						if (j == 6)
+						{
+							data = SumRounder(data);
+						}
+						
+						contents.showText(data);
+						
 						contents.endText();
 					}
 					
@@ -2564,11 +2592,11 @@ public class Main extends JFrame
 				startValuesYourtable[0] = startLineBoxlongX+25;
 				startValuesYourtable[1] = offside;
 				startValuesYourtable[2] = offside;
-				startValuesYourtable[3] = offside;
-				startValuesYourtable[4] = offside;
+				startValuesYourtable[3] = startLineBoxlongX+370;
+				startValuesYourtable[4] = startLineBoxlongX+400;
 				startValuesYourtable[5] = offside;
 				startValuesYourtable[6] = offside;
-				startValuesYourtable[7] = startLineBoxlongX+510;
+				startValuesYourtable[7] = startLineBoxlongX+490;
 				
 				for(int i = 0; i<Yourtable.getRowCount(); i++)
 				{
@@ -2579,7 +2607,14 @@ public class Main extends JFrame
 						contents.setFont(font, 8);
 						contents.setNonStrokingColor(Color.BLACK);
 						contents.newLineAtOffset(startValuesYourtable[j], startLineserviceYourtableY);
-						contents.showText(Yourtable.getModel().getValueAt(i, j).toString());
+						
+						String data = Yourtable.getModel().getValueAt(i, j).toString();
+						if (j == 7)
+						{
+							data = SumRounder(data);
+						}
+						
+						contents.showText(data);
 						contents.endText();
 					}
 					
@@ -2600,7 +2635,7 @@ public class Main extends JFrame
 				{
 					
 					contents.beginText();
-					contents.setFont(font, 10);
+					contents.setFont(font, 8);
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineX2, startLineY2+2);
 					contents.showText(Totprislist[i]); // lägg till pris
@@ -2610,10 +2645,14 @@ public class Main extends JFrame
 				
 					
 					contents.beginText();
-					contents.setFont(font, 10);
+					contents.setFont(font, 8);
 					contents.setNonStrokingColor(Color.BLACK);
 					contents.newLineAtOffset(startLineX2-100, startLineY2+2);
-					contents.showText(textTotalAmount.getText());
+					String data = textTotalAmount.getText();
+					
+					data = SumRounder(data);
+					
+					contents.showText(data);
 					contents.endText();
 					listslut = startLineY2;
 
@@ -2687,6 +2726,9 @@ public class Main extends JFrame
 				contents.addLine(5, 100, 600, 100);
 				int startLinehpX = 5;
 				int startLinehpY = 95;
+				
+				boolean hasMoreInfo = false;
+				
 				for(int i = startRowHoganas; i<endRowHoganas; i++)
 				{
 					
@@ -2701,7 +2743,7 @@ public class Main extends JFrame
 						startLinehpX = 150;
 						startLinehpY = 90;
 					}
-					if(info.get(i).compareTo("Telefon 042-338200") == 0) // ombytar stämmer inte 
+					if(info.get(i).startsWith("Telefon")) // ombytar stämmer inte 
 					{
 						startLinehpX = 300;
 						startLinehpY = 90;
