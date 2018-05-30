@@ -2528,19 +2528,34 @@ public class Main extends JFrame
 					for (int j = 0; j < servicetabel.getColumnCount(); j++)
 					{
 						contents.beginText();
-						contents.setFont(font, 8);
-						contents.setNonStrokingColor(Color.BLACK);
-						contents.newLineAtOffset(startValues[j], startLineservicetabelY);
-						
-						String data = servicetabel.getModel().getValueAt(i, j).toString();
-						if (j == 6)
+						if(j == 4)
 						{
-							data = SumRounder(data);
+							contents.newLineAtOffset(startValues[j], startLineservicetabelY);
+							double total;
+							double a = 0;
+							double b = 0;
+							a = Double.parseDouble(servicetabel.getValueAt(i, 6).toString());
+							b = Double.parseDouble( servicetabel.getValueAt(i, 3).toString());
+							total = a/b;
+							String h = Double.toString(total);
+							h = SumRounder(h);
+							System.out.println(h);
+							contents.showText(h);
 						}
-						
-						contents.showText(data);
-						
-						
+						else
+						{
+							contents.setFont(font, 8);
+							contents.setNonStrokingColor(Color.BLACK);
+							contents.newLineAtOffset(startValues[j], startLineservicetabelY);
+							
+							String data = servicetabel.getModel().getValueAt(i, j).toString();
+							if (j == 6)
+							{
+								data = SumRounder(data);
+							}
+							contents.showText(data);
+							
+						}
 						contents.endText();
 					}
 					
@@ -2566,17 +2581,34 @@ public class Main extends JFrame
 					for (int j = 0; j < Matrialtable.getColumnCount(); j++)
 					{
 						contents.beginText();
-						contents.setFont(font, 8);
-						contents.setNonStrokingColor(Color.BLACK);
-						contents.newLineAtOffset(startValuesMatrialtable[j], startLineserviceMatrialtableY);
-						
-						String data = Matrialtable.getModel().getValueAt(i, j).toString();
-						if (j == 6)
+						if(j == 4)
 						{
-							data = SumRounder(data);
+							contents.newLineAtOffset(startValues[j], startLineserviceMatrialtableY);
+							double total;
+							double a = 0;
+							double b = 0;
+							a = Double.parseDouble(Matrialtable.getValueAt(i, 6).toString());
+							b = Double.parseDouble( Matrialtable.getValueAt(i, 2).toString());
+							total = a/b;
+							String h = Double.toString(total);
+							h = SumRounder(h);
+							System.out.println(h);
+							contents.showText(h);
 						}
-						
-						contents.showText(data);
+						else
+						{
+							contents.setFont(font, 8);
+							contents.setNonStrokingColor(Color.BLACK);
+							contents.newLineAtOffset(startValuesMatrialtable[j], startLineserviceMatrialtableY);
+							
+							String data = Matrialtable.getModel().getValueAt(i, j).toString();
+							if (j == 6)
+							{
+								data = SumRounder(data);
+							}
+							
+							contents.showText(data);
+						}
 						
 						contents.endText();
 					}
@@ -2604,17 +2636,35 @@ public class Main extends JFrame
 					for (int j = 0; j < Yourtable.getColumnCount(); j++)
 					{
 						contents.beginText();
-						contents.setFont(font, 8);
-						contents.setNonStrokingColor(Color.BLACK);
-						contents.newLineAtOffset(startValuesYourtable[j], startLineserviceYourtableY);
-						
-						String data = Yourtable.getModel().getValueAt(i, j).toString();
-						if (j == 7)
+						if(j == 4)
 						{
-							data = SumRounder(data);
+							contents.newLineAtOffset(startValues[j], startLineserviceYourtableY);
+							double total;
+							double a = 0;
+							double b = 0;
+							a = Double.parseDouble(Yourtable.getValueAt(i, 7).toString());
+							b = Double.parseDouble( Yourtable.getValueAt(i, 3).toString());
+							total = a/b;
+							String h = Double.toString(total);
+							h = SumRounder(h);
+							System.out.println(h);
+							contents.showText(h);
+						}
+						else
+						{
+							contents.setFont(font, 8);
+							contents.setNonStrokingColor(Color.BLACK);
+							contents.newLineAtOffset(startValuesYourtable[j], startLineserviceYourtableY);
+							
+							String data = Yourtable.getModel().getValueAt(i, j).toString();
+							if (j == 7)
+							{
+								data = SumRounder(data);
+							}
+							
+							contents.showText(data);
 						}
 						
-						contents.showText(data);
 						contents.endText();
 					}
 					
