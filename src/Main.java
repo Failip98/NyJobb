@@ -20,6 +20,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,6 +65,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.util.NumberFormatUtil;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import java.awt.TextField;
+import javax.swing.SwingConstants;
 
 public class Main extends JFrame 
 {
@@ -107,45 +110,45 @@ public class Main extends JFrame
 	static DecimalFormat df;;
 	//Service Table
 	static Object rowDataService[][] = {};
-	static String columnNamesService[] = { "Nummer", "Service", "Pris pre timme", "Antal" ,"Stäl tid", "Oprations tid", "Pris" };
+	static String columnNamesService[] = { "Nummer", "Service", "Pris/h", "Antal" ,"Ställtid", "Oprationstid", "Pris" };
 	static DefaultTableModel dtmService = new DefaultTableModel(rowDataService, columnNamesService);
 	//Matrial Table
 	static Double rowDataMatrial[][] = {};
-	static String columnNamesMatrial[] = { "Matrial", "Pris/Enhet", "Mängd", "MO", "Affo", "Vinst", "Pris" };
+	static String columnNamesMatrial[] = { "Material", "Pris/Enhet", "Mängd", "MO", "Affo", "Vinst", "Pris" };
 	static DefaultTableModel dtmMarieial = new DefaultTableModel(rowDataMatrial, columnNamesMatrial);
 	//Your Table
 	static Object rowDataYour[][] = {};
-	static String columnNamesYour[] = { "Mina kostnader", "Stälkostnad", "St Pris", "St","LO", "Affo", "Vinst", "Pris" };
+	static String columnNamesYour[] = { "Mina kostnader", "Ställkostnad", "Pris/Styck", "Antal","LO", "Affo", "Vinst", "Pris" };
 	static DefaultTableModel dtmYour = new DefaultTableModel(rowDataYour, columnNamesYour);
 	//Service Tabel cost
 	static Object rowDataServiceCost[][] = {};
-	static String columnNamesServiceCost[] = { "Service kostnader" };
+	static String columnNamesServiceCost[] = { "Servicekostnader" };
 	static DefaultTableModel dtmServiceCost = new DefaultTableModel(rowDataServiceCost, columnNamesServiceCost);
 	//Matral Tabel cost
 	static Object rowDataMatrialCost[][] = {};
-	static String columnNamesMatrialCost[] = { "Matrial kostnader" };
+	static String columnNamesMatrialCost[] = { "Matrialkostnader" };
 	static DefaultTableModel dtmMarieialCost = new DefaultTableModel(rowDataMatrialCost, columnNamesMatrialCost);
 	// Your Tabel cost
 	static Object rowDataYourCost[][] = {};
-	static String columnNamesYourCost[] = { "Mina kostnader" };
+	static String columnNamesYourCost[] = { "Egna utgifter" };
 	static DefaultTableModel dtmYourCost = new DefaultTableModel(rowDataYourCost, columnNamesYourCost);
 	// Preptime Tabel 
 	static Object rowDataPrepTime[][] = {};
-	static String columnNamesPrepTime[] = { "Förberedelse tid" };
+	static String columnNamesPrepTime[] = { "Förberedelsetid" };
 	static DefaultTableModel dtmPrepTime = new DefaultTableModel(rowDataPrepTime, columnNamesPrepTime);
 	// OprerationTime Tabel 
 	static Object rowDataOperationTime[][] = {};
-	static String columnNamesOprerationTime[] = { "Operation tid" };
+	static String columnNamesOprerationTime[] = { "Operationstid" };
 	static DefaultTableModel dtmOperationTime = new DefaultTableModel(rowDataOperationTime, columnNamesOprerationTime);
 
 	//OneServiseCost Tabel
 	static Object rowDataOneServiceCost[][] = {};
-	static String columnNamesOneServiceCost[] = { "En Service" };
+	static String columnNamesOneServiceCost[] = { "Service" };
 	static DefaultTableModel dtmOneServiceCost = new DefaultTableModel(rowDataOneServiceCost, columnNamesOneServiceCost);
 
 	// One YourCost Tabel 
 	static Object rowDataOneYourCost[][] = {};
-	static String columnNamesOneYourCost[] = { "En Mina" };
+	static String columnNamesOneYourCost[] = { "Egna utgifter" };
 	static DefaultTableModel dtmOneYourCost = new DefaultTableModel(rowDataOneYourCost, columnNamesOneYourCost);
 
 	//Textfelt
@@ -194,6 +197,7 @@ public class Main extends JFrame
 	private int offside = 1000000000;
 	private JComboBox vorrefcomboBox;
 	private JComboBox kundrefcomboBox;
+	private JTextField textField_Offertnummer;
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -339,7 +343,7 @@ public class Main extends JFrame
 			public void actionPerformed(ActionEvent e) {
 				int i = nr.getSelectedIndex();
 				
-				if (tabel.getSelectedRow() > -1)
+				if (tabel.getSelectedRow() > -1 && i > -1)
 				{
 					dtmService.setValueAt(services.get(i).data_.toArray()[1], tabel.getSelectedRow(), 1);
 					String value = services.get(i).data_.toArray()[2].toString();
@@ -372,13 +376,17 @@ public class Main extends JFrame
 		Serice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int i = Serice.getSelectedIndex();
-				dtmService.setValueAt(services.get(i).data_.toArray()[0], tabel.getSelectedRow(), 0);
-				
-				String value = services.get(i).data_.toArray()[2].toString();
-				
-				value = value.replaceAll(",", ".");
-				
-				dtmService.setValueAt(value, tabel.getSelectedRow(), 2); 
+				if(tabel.getSelectedRow() > -1 && i > -1)
+				{
+					dtmService.setValueAt(services.get(i).data_.toArray()[0], tabel.getSelectedRow(), 0);
+					
+					String value = services.get(i).data_.toArray()[2].toString();
+					
+					value = value.replaceAll(",", ".");
+					
+					dtmService.setValueAt(value, tabel.getSelectedRow(), 2);
+				}
+				 
 				
 				
 			}
@@ -511,7 +519,7 @@ public class Main extends JFrame
 	{
 		
 		
-		JButton btnImport = new JButton("Importera befintlig Datafile");
+		JButton btnImport = new JButton("Importera datafil");
 		btnImport.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e) 
@@ -543,7 +551,7 @@ public class Main extends JFrame
 		btnImport.setBounds(919, 41, 210, 23);
 		contentPane.add(btnImport);
 
-		JButton btnSave = new JButton("Spara Offert");
+		JButton btnSave = new JButton("Spara offert");
 		btnSave.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e) 
@@ -562,6 +570,7 @@ public class Main extends JFrame
 					
 				} catch (Exception e1) {
 					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Sparades ej. Stäng pdfen och spara igen");
 				}
 				//--------------
 			}
@@ -569,7 +578,7 @@ public class Main extends JFrame
 		btnSave.setBounds(1733, 927, 140, 23);
 		contentPane.add(btnSave);
 
-		JButton btnAddService = new JButton("L\u00E4ggtill");
+		JButton btnAddService = new JButton("L\u00E4gg till");
 		btnAddService.addMouseListener(new MouseAdapter() 
 		{
 			public void mouseClicked(MouseEvent arg0) 
@@ -581,7 +590,7 @@ public class Main extends JFrame
 		btnAddService.setBounds(66, 81, 89, 23);
 		contentPane.add(btnAddService);
 
-		JButton btnDeliteMachin = new JButton("Ta Bort");
+		JButton btnDeliteMachin = new JButton("Ta bort");
 		btnDeliteMachin.addMouseListener(new MouseAdapter() 
 		{
 			public void mouseClicked(MouseEvent arg0) 
@@ -595,7 +604,7 @@ public class Main extends JFrame
 		btnDeliteMachin.setBounds(165, 81, 89, 23);
 		contentPane.add(btnDeliteMachin);
 
-		JButton btnAddMaterel = new JButton("L\u00E4ggtill");
+		JButton btnAddMaterel = new JButton("L\u00E4gg till");
 		btnAddMaterel.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent arg0) 
@@ -607,7 +616,7 @@ public class Main extends JFrame
 		btnAddMaterel.setBounds(66, 288, 89, 23);
 		contentPane.add(btnAddMaterel);
 
-		JButton btnAddShippingCost = new JButton("L\u00E4ggtill");
+		JButton btnAddShippingCost = new JButton("L\u00E4gg till");
 		btnAddShippingCost.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent arg0) {
@@ -617,7 +626,7 @@ public class Main extends JFrame
 		btnAddShippingCost.setBounds(612, 821, 89, 23);
 		contentPane.add(btnAddShippingCost);
 
-		JButton btnAddToYourCost = new JButton("L\u00E4ggtill");
+		JButton btnAddToYourCost = new JButton("L\u00E4gg till");
 		btnAddToYourCost.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent arg0) 
@@ -629,7 +638,7 @@ public class Main extends JFrame
 		btnAddToYourCost.setBounds(108, 493, 89, 23);
 		contentPane.add(btnAddToYourCost);
 
-		JButton btnDeliteMaterial = new JButton("Ta Bort");
+		JButton btnDeliteMaterial = new JButton("Ta bort");
 		btnDeliteMaterial.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -642,7 +651,7 @@ public class Main extends JFrame
 		btnDeliteMaterial.setBounds(165, 288, 89, 23);
 		contentPane.add(btnDeliteMaterial);
 
-		JButton btnDeliteYourCost = new JButton("Ta Bort");
+		JButton btnDeliteYourCost = new JButton("Ta bort");
 		btnDeliteYourCost.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -721,19 +730,19 @@ public class Main extends JFrame
 		lblUnitAmaunt.setBounds(1619, 811, 150, 14);
 		contentPane.add(lblUnitAmaunt);
 
-		JLabel lblNewYourCost = new JLabel("Mina kostnader");
+		JLabel lblNewYourCost = new JLabel("Egna utgifter");
 		lblNewYourCost.setBounds(10, 493, 106, 14);
 		contentPane.add(lblNewYourCost);
 
-		JLabel lblMaterial = new JLabel("Matrial");
+		JLabel lblMaterial = new JLabel("Material");
 		lblMaterial.setBounds(10, 292, 46, 14);
 		contentPane.add(lblMaterial);
 
-		JLabel lblTotalTid = new JLabel("Totala tid");
+		JLabel lblTotalTid = new JLabel("Total tid");
 		lblTotalTid.setBounds(612, 893, 56, 14);
 		contentPane.add(lblTotalTid);
 
-		JLabel lblShipping = new JLabel("Frakt kostnad");
+		JLabel lblShipping = new JLabel("Fraktkostnad");
 		lblShipping.setBounds(612, 767, 80, 14);
 		contentPane.add(lblShipping);
 
@@ -769,7 +778,7 @@ public class Main extends JFrame
 		lblDatum.setBounds(1720, 11, 46, 14);
 		contentPane.add(lblDatum);
 
-		JLabel lblProduce = new JLabel("Vad ska Tillverkas");
+		JLabel lblProduce = new JLabel("Vad ska tillverkas");
 		lblProduce.setBounds(10, 42, 120, 14);
 		contentPane.add(lblProduce);
 
@@ -781,11 +790,11 @@ public class Main extends JFrame
 		lblVinst.setBounds(732, 42, 30, 14);
 		contentPane.add(lblVinst);
 
-		JLabel lblUnitAmuntDivided = new JLabel("Styck summa vid flertal best\u00E4lda ex moms");
+		JLabel lblUnitAmuntDivided = new JLabel("Stycksumma vid flertal best\u00E4llda ex moms");
 		lblUnitAmuntDivided.setBounds(1516, 764, 247, 26);
 		contentPane.add(lblUnitAmuntDivided);
 		
-		JLabel lblPricelist = new JLabel("Data file");
+		JLabel lblPricelist = new JLabel("Datafil");
 		lblPricelist.setBounds(1139, 45, 52, 14);
 		contentPane.add(lblPricelist);
 		
@@ -802,6 +811,15 @@ public class Main extends JFrame
 		lblErlieroffer.setBounds(1359, 11, 80, 14);
 		contentPane.add(lblErlieroffer);
 		
+		JLabel lblPrisFrEn = new JLabel("Pris f\u00F6r en");
+		lblPrisFrEn.setHorizontalAlignment(SwingConstants.CENTER);
+		lblPrisFrEn.setBounds(722, 731, 210, 20);
+		contentPane.add(lblPrisFrEn);
+		
+		JLabel lblOffertnummer = new JLabel("Offertnummer");
+		lblOffertnummer.setBounds(234, 8, 128, 20);
+		contentPane.add(lblOffertnummer);
+		
 		
 		
 		
@@ -810,7 +828,7 @@ public class Main extends JFrame
 	private void toreader()
 	//TODO
 	{
-		JLabel lblVrReferens = new JLabel("V\u00E5r Referens");
+		JLabel lblVrReferens = new JLabel("V\u00E5r referens");
 		lblVrReferens.setBounds(958, 770, 100, 14);
 		contentPane.add(lblVrReferens);
 		
@@ -824,7 +842,7 @@ public class Main extends JFrame
 		contentPane.add(textField);
 		textField.setColumns(10);
 		
-		JLabel lblKundsReferens = new JLabel("Kunds Referens");
+		JLabel lblKundsReferens = new JLabel("Kunds referens");
 		lblKundsReferens.setBounds(958, 893, 128, 14);
 		contentPane.add(lblKundsReferens);
 		
@@ -848,13 +866,20 @@ public class Main extends JFrame
 		lblVljKund.setBounds(958, 825, 100, 14);
 		contentPane.add(lblVljKund);
 		
-		JLabel labelComents = new JLabel("Fri text p\u00E5 offerten");
+		JLabel labelComents = new JLabel("Fritext p\u00E5 offerten");
 		labelComents.setBounds(1218, 774, 150, 14);
 		contentPane.add(labelComents);
 		
 		textArea = new TextArea();
 		textArea.setBounds(1215, 794, 299, 164);
 		contentPane.add(textArea);
+		
+
+		textField_Offertnummer = new JTextField();
+		textField_Offertnummer.setColumns(10);
+		textField_Offertnummer.setBounds(341, 8, 86, 20);
+		contentPane.add(textField_Offertnummer);
+		
 	}
 	
 	private void textfelds() //Skapar alla textfelt
@@ -870,7 +895,7 @@ public class Main extends JFrame
 		textProduce.setColumns(10);
 
 		textAmount = new JTextField();
-		textAmount.setBounds(264, 39, 86, 20);
+		textAmount.setBounds(278, 42, 86, 20);
 		contentPane.add(textAmount);
 		textAmount.setColumns(10);
 
@@ -1370,8 +1395,8 @@ public class Main extends JFrame
 
 	private void AddEx() // Lägger till exempel namn när man startar upp programet
 	{
-		textCostemerName.setText("Exempel företag");
-		textProduce.setText("Exempel sak");
+		textCostemerName.setText("Exempelföretag");
+		textProduce.setText("Exempelprodukt");
 	}
 
 	private void TabelListnerValues(JTable x, TableModelEvent e)//Beroende på vilken tabel som skickas in så väljs var den ska skickas vidare och vilken tabel som ska räknas utt
@@ -1475,7 +1500,7 @@ public class Main extends JFrame
 	private void AddMaterial() //Lägger till ny Matrial rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
-		Object[] newRowMaterialData = {"Matrial",startWalue,unit,overMo,overAffo,overVinst,startWalue};
+		Object[] newRowMaterialData = {"Material",startWalue,unit,overMo,overAffo,overVinst,startWalue};
 		Object[] newRowMaterialCostData = {startWalue};
 		dtmMarieial.addRow(newRowMaterialData);
 		dtmMarieialCost.addRow(newRowMaterialCostData);
@@ -1484,7 +1509,7 @@ public class Main extends JFrame
 	private void AddToYourCost()// Läger till ny Mina kostnader rad
 	{
 		int unit = Integer.parseInt(textAmount.getText());
-		Object[] newRowYourData = { "Vad", startWalue, startWalue, unit ,overLo, overAffo,overVinst,startWalue};
+		Object[] newRowYourData = { "Odefinerad", startWalue, startWalue, unit ,overLo, overAffo,overVinst,startWalue};
 		Object[] newRowYourCostData = {startWalue};
 		dtmYour.addRow(newRowYourData);
 		dtmYourCost.addRow(newRowYourCostData);
@@ -1735,6 +1760,12 @@ public class Main extends JFrame
                 	{
                 		String kundref = lines[counter].replaceAll("^\\s+", "");
                 		textField.setText(kundref);
+                		counter++;
+                	}
+                	else if(checker.compareTo("OFFERTNR") == 0)
+                	{
+                		String offertnr = lines[counter].replaceAll("^\\s+", "");
+                		textField_Offertnummer.setText(offertnr);
                 		counter++;
                 	}
                 	else if(checker.compareTo("EGENTEXT") == 0)
@@ -2165,6 +2196,10 @@ public class Main extends JFrame
 		exportData2.add(textField.getText() + ";");
 		exportData2.add("");
 		
+		exportData2.add("OFFERTNR;");
+		exportData2.add(textField_Offertnummer.getText() + ";");
+		exportData2.add("");
+		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		ArrayList<String> exportData3 = new ArrayList<String>();
@@ -2188,7 +2223,7 @@ public class Main extends JFrame
 		
 			PDFont font = PDType1Font.HELVETICA;
 			
-			File f = new File("bin/hv2.png");
+			File f = new File("data/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
 			{
 				
@@ -2321,12 +2356,12 @@ public class Main extends JFrame
 			PDFont font = PDType1Font.HELVETICA; 
 			PDFont fontbold = PDType1Font.HELVETICA_BOLD;
 			String[] Totprislist = {"Summa exkl. Moms (SEK)", "Pris" };// lägg till tot pris
-			String[] offertnr = {"OffertNummer","XXXX/X"};
+			String[] offertnr = {"Offertnummer",textField_Offertnummer.getText()};
 			String[] sellers = {vorrefcomboBox.getSelectedItem().toString(),textField.getText(),textDate.getText()};
 			int side = 1 ; 
 			int temp;
 			boolean secondpage = false;
-			File f = new File("bin/hv2.png");
+			File f = new File("data/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page))
 			{
 				
@@ -2419,10 +2454,6 @@ public class Main extends JFrame
 				print(contents,font , er ,475, 692);
 				String ert = textField.getText().toString();
 				print(contents,font , ert ,475, 680);
-				
-				
-				
-				
 				
 				
 				
@@ -2592,7 +2623,6 @@ public class Main extends JFrame
 							total = a/b;
 							String h = Double.toString(total);
 							h = SumRounder(h);
-							System.out.println(h);
 							contents.showText(h);
 						}
 						else
@@ -2614,7 +2644,6 @@ public class Main extends JFrame
 					}
 					
 					startLineserviceMatrialtableY -= 10;
-					
 				}
 				listslut = startLineserviceMatrialtableY;
 				contents.stroke();	
@@ -2647,7 +2676,6 @@ public class Main extends JFrame
 							total = a/b;
 							String h = Double.toString(total);
 							h = SumRounder(h);
-							System.out.println(h);
 							contents.showText(h);
 						}
 						else
@@ -2856,7 +2884,7 @@ public class Main extends JFrame
 		
 		PDPage page2 = new PDPage();
 			doc.addPage(page2);
-			File f = new File("bin/hv2.png");
+			File f = new File("data/hv2.png");
 			try (PDPageContentStream contents = new PDPageContentStream(doc, page2))
 			{
 				int startLinshortBoxX = 365;
@@ -2907,7 +2935,7 @@ public class Main extends JFrame
 					contents.showText(texarows[i]);
 					contents.endText();
 				}
-				
+				contents.stroke();
 				
 			
 			}
